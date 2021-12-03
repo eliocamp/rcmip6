@@ -1,20 +1,19 @@
 #' Query CMIP data
 #'
-#' @param query A list that defines the search parameters
+#' @param query A list that defines the search parameters.
+#' @param url The URL of the JSON query to convert into a list. See details.
 #'
 #' @details
-#' La mejor forma de obtener una `query` válida es ir al portal de búsqueda
-#' ([https://esgf-node.llnl.gov/search/cmip6/](https://esgf-node.llnl.gov/search/cmip6/)),
-#'  realizar una búsqueda que se aproxime
-#' a lo que uno quiere. Debajo del número de resultados hay un link que dice
-#' "return results as JSON", copiar ese link y usar `cmip_url_to_list()` para convertir
-#' eso en una lista que luego uno puede modificar. En RStudio, se puede usar
-#' un AddIn para hacerlo más rápido.
+#' The easiest way to get a valid `query` list is to use the search portal at
+#' ([https://esgf-node.llnl.gov/search/cmip6/](https://esgf-node.llnl.gov/search/cmip6/))
+#' to make a search that approximates what you are looking for. Then, under the number of
+#' results there's a link that reads "return results as JSON". Copy that link and pass it
+#' to `cmip_url_to_list()`.
+#' On RStudio you can also use the AddIn.
 #'
 #' @return
 #'
-#' Una lista con los resultados de la búsqueda que puede ser pasada a un data.frame con
-#' [as.data.frame()]
+#' A list with search results. This can be parsed with [as.data.frame()] for better inspection.
 #'
 #' @export
 cmip_search <- function(query) {
@@ -40,7 +39,17 @@ print.cmip_results <- function(x, ...) {
 }
 
 
-.cmip_parse_search <- function(results) {
+#' @rdname cmip_search
+#' @export
+cmip_url_to_list <- function(url) {
+  query <- httr::parse_url(url)$query
+  no_query <- c("offset", "limit", "facets", "format")
+  query <- query[!(names(query) %in% no_query)]
+
+  return(query)
+}
+
+cmip_parse_search <- function(results) {
   parsed <- lapply(results, function(result) {
     datetime_start <- result$datetime_start
     if(length(datetime_start) == 0) datetime_start <- NA
@@ -50,7 +59,7 @@ print.cmip_results <- function(x, ...) {
 
     data <- unglue::unglue_data(result[["title"]],
                                 .pattern_python_to_r(result[["dataset_id_template_"]][[1]]))
-    member <- .parse_member_id(data$member_id)
+    member <- parse_member_id(data$member_id)
 
     data.frame(
       mip_era = result[["mip_era"]][[1]],
@@ -80,8 +89,26 @@ print.cmip_results <- function(x, ...) {
 }
 
 
+parse_member_id <- function(member_id) {
+  data <- unglue::unglue_data(member_id,
+                              c("{sub_experiment_id}-r{realization_index}i{initialization_index}p{physics_index}f{forcing_index}",
+                                "r{realization_index}i{initialization_index}p{physics_index}f{forcing_index}",
+                                "{sub_experiment_id}-i{initialization_index}p{physics_index}f{forcing_index}",
+                                "i{initialization_index}p{physics_index}f{forcing_index}"))
+  if (!("sub_experiment_id" %in% colnames(data))) {
+    data[["sub_experiment_id"]] <- rep("none", nrow(data))
+  }
+  data[["sub_experiment_id"]] <- replace(data[["sub_experiment_id"]], is.na(data[["sub_experiment_id"]]), "none")
+
+  if (!("realization_index" %in% colnames(data))) {
+    data[["realization_index"]] <- rep(NA, nrow(data))
+  }
+
+  data
+}
+
 #' @export
 as.data.frame.cmip_results <- function(x, ...) {
-  .cmip_parse_search(x)
+  cmip_parse_search(x)
 }
 

@@ -1,28 +1,16 @@
 #' Downloads CMIP data
 #'
-#' @param results una lista de resultados devuelta por [cmip_search()]
-#' @param base_dir carpeta raiz de la base de datos de CIP6
-#' @param user usuario para autenticar (ver [cmip_key_set])
-#' @param system_config comandos de sistema para correr antes de iniciar las descargas
-#' (por ejemplo, para setear el proxy).
-#' @param force_https usar hptts? (ver Detalles)()
+#' @param results A list of search results from [cmip_search()].
+#' @param base_dir Root folder to download and organise tha data.
 #'
-#' @param progress_bar Mostrar una barra de progreso?
-#'
-#' @details
-#' Los archivos se descargan en una estructura de carpetas estándard:
-#' \[base_dir\]/Download/Format/Data_used/\{experiment_id\}/\{frequency\}/\{variable_id\}/\{variable_id\}_\{table_id\}_\{source_id\}_\{experiment_id\}_r\{realization_index\}i\{initialization_index\}p\{physics_index\}f\{forcing_index\}_\{grid_label\}_\{datetime_start\}-\{datetime_stop\}.\{ext\}
-#'
-#' Algunos modelos fallan al descargarse con el script original porque éste usa http y el servidor
-#' espera https. Con `force_https = TRUE` se cambia la URL interna del script para usar https.
 #'
 #' @return
-#' Un vector de caracteres con los archivos descargados (que puede pasarse directamente a [cmip_consolidate()])
+#' A list of files, for now.
 #'
 #' @export
 cmip_download <- function(results, base_dir = cmip_folder_get()) {
   base_dir <- path.expand(base_dir)
-  cmip_download_one(result, base_dir = base_dir)
+  lapply(results, cmip_download_one, base_dir = base_dir)
 
 }
 
@@ -57,10 +45,11 @@ cmip_download_one <- function(result, base_dir = cmip_folder_get()) {
         return(file)
       }
     }
-    download.file(url = url,
+    utils::download.file(url = url,
                   destfile = file)
     file
   }, character(1))
+  files
 }
 
 

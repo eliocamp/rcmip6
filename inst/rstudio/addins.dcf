@@ -1,0 +1,5 @@
+Name: Url to list
+Description: Convert CMIP request to list.
+Binding: url_to_list_Addin
+Interactive: false
+

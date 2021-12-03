@@ -4,9 +4,9 @@
 \name{rcmip6-package}
 \alias{rcmip6}
 \alias{rcmip6-package}
-\title{rcmip6: What the Package Does (One Line, Title Case)}
+\title{rcmip6: Download CMIP6 Data}
 \description{
-What the package does (one paragraph).
+Search and download CMIP6 data.
 }
 \author{
 \strong{Maintainer}: Elio Campitelli \email{elio.campitelli@cima.fcen.uba.ar} (\href{https://orcid.org/0000-0002-7742-9230}{ORCID})

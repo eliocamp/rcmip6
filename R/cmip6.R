@@ -1,3 +1,5 @@
+# Code for the old package.
+if (FALSE) {
 #' Lista datos de CMIP6 disponibles en una carpeta
 #'
 #' @param base_dir carpeta raiz de la base de datos
@@ -55,34 +57,9 @@ cmip_available <- function(base_dir = cmip_folder_get()) {
 
 
 
-#' @rdname cmip_search
-#' @export
-cmip_url_to_list <- function(url) {
-  query <- httr::parse_url(url)$query
-  no_query <- c("offset", "limit", "facets", "format")
-  query <- query[!(names(query) %in% no_query)]
-
-  return(query)
-}
 
 
-.parse_member_id <- function(member_id) {
-  data <- unglue::unglue_data(member_id,
-                              c("{sub_experiment_id}-r{realization_index}i{initialization_index}p{physics_index}f{forcing_index}",
-                                "r{realization_index}i{initialization_index}p{physics_index}f{forcing_index}",
-                                "{sub_experiment_id}-i{initialization_index}p{physics_index}f{forcing_index}",
-                                "i{initialization_index}p{physics_index}f{forcing_index}"))
-  if (!("sub_experiment_id" %in% colnames(data))) {
-    data[["sub_experiment_id"]] <- rep("none", nrow(data))
-  }
-  data[["sub_experiment_id"]] <- replace(data[["sub_experiment_id"]], is.na(data[["sub_experiment_id"]]), "none")
 
-  if (!("realization_index" %in% colnames(data))) {
-    data[["realization_index"]] <- rep(NA, nrow(data))
-  }
-
-  data
-}
 
 
 
@@ -249,3 +226,4 @@ message_time <- function(..., domain = NULL, appendLF = TRUE) {
 }
 
 
+}

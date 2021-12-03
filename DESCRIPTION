@@ -19,7 +19,7 @@ Imports:
     keyring,
     callr,
     progress,
-    unglue
+    digest
 Suggests: 
     ncdf4,
     rstudioapi,
