@@ -6,48 +6,91 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of rcmip6 is to …
+The goal of rcmip6 is to search and download data from the CMIP6
+project.
 
 ## Installation
 
 You can install the development version of rcmip6 like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+remotes::install_github("eliocamp/rcmip6")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Search models, variables, etc… using `cmip_search()`
 
 ``` r
-# library(rcmip6)
-## basic example code
+library(rcmip6)
+
+query <- list(
+  type               = "Dataset",
+  replica            = "false",
+  latest             = "true",
+  variable_id        = "tas",
+  project            = "CMIP6",
+  frequency          = "mon",                          
+  table_id           = "Amon",
+  experiment_id      = "historical",
+  source_id          = "CanESM5"
+)
+
+results <- cmip_search(query)
+results
+#> Found 65 results totalling 3252Mb.
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+Sumary of results:
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+as.data.frame(results) |> 
+  head(10) |> 
+  knitr::kable()
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
+| mip_era | institution_id | source_id | experiment_id | sub_experiment_id | experiment_title                          | member_id | realization_index | initialization_index | physics_index | forcing_index | table_id | frequency | datetime_start       | datetime_stop        | variable_id | nominal_resolution | grid_label |     size |
+|:--------|:---------------|:----------|:--------------|:------------------|:------------------------------------------|:----------|:------------------|:---------------------|:--------------|:--------------|:---------|:----------|:---------------------|:---------------------|:------------|:-------------------|:-----------|---------:|
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r10i1p2f1 | 10                | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.03243 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r7i1p2f1  | 7                 | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.02567 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r8i1p2f1  | 8                 | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.02891 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r9i1p2f1  | 9                 | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.02964 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r23i1p2f1 | 23                | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.03534 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r14i1p2f1 | 14                | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.03199 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r16i1p2f1 | 16                | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.03632 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r17i1p2f1 | 17                | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.02975 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r22i1p2f1 | 22                | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.03298 |
+| CMIP6   | CCCma          | CanESM5   | historical    | none              | all-forcing simulation of the recent past | r11i1p2f1 | 11                | 1                    | 2             | 1             | Amon     | mon       | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | tas         | 500 km             | gn         | 50.03043 |
 
-You can also embed plots, for example:
+The, download the data. Just as a demonstration, download only the first
+result
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
+``` r
+root <- "readme_example"
+options(timeout = 360) # Kind of important for some reason
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+files <- cmip_download(results[1], base_dir = root)
+#> Downloading CMIP6.CMIP.CCCma.CanESM5.historical.r10i1p2f1.Amon.tas.gn...
+#> Skipping existing file with good checksum.
+```
+
+The files are saved mirroring the source file structure to ensure that
+each file is unique.
+
+``` r
+cat(system(paste0("tree ", shQuote(root)), intern = TRUE), sep = "\n")
+#> readme_example
+#> └── CMIP6
+#>     └── CMIP
+#>         └── CCCma
+#>             └── CanESM5
+#>                 └── historical
+#>                     └── r10i1p2f1
+#>                         └── Amon
+#>                             └── tas
+#>                                 └── gn
+#>                                     └── 20190429
+#>                                         └── tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc
+#> 
+#> 10 directories, 1 file
+```
