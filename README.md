@@ -90,9 +90,10 @@ cat(system(paste0("tree ", shQuote(cmip_root_get())), intern = TRUE), sep = "\n"
 #>                                 └── gn
 #>                                     └── 20190429
 #>                                         ├── model.info
+#>                                         ├── tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.log
 #>                                         └── tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc
 #> 
-#> 10 directories, 2 files
+#> 10 directories, 3 files
 ```
 
 This structure can be parsed with `cmip_available()`
