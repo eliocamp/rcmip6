@@ -15,10 +15,6 @@ Imports:
     unglue,
     jsonlite,
     httr,
-    getPass,
-    keyring,
-    callr,
-    progress,
     digest
 Suggests: 
     ncdf4,
