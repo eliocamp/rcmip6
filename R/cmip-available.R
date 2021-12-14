@@ -2,8 +2,8 @@
 #'
 #' @inheritParams cmip_download
 #' @export
-cmip_available <- function(base_dir = cmip_folder_get()) {
-  info <- list.files(base_dir, pattern = "model.info", recursive = TRUE, full.names = TRUE)
+cmip_available <- function(root = cmip_root_get()) {
+  info <- list.files(root, pattern = "model.info", recursive = TRUE, full.names = TRUE)
 
   cmip6_folder_template <- gsub("%\\(", "", cmip6_folder_template)
   cmip6_folder_template <- gsub("\\)s", "", cmip6_folder_template)

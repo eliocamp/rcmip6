@@ -66,19 +66,18 @@ The, download the data. Just as a demonstration, download only the first
 result
 
 ``` r
-root <- "readme_example"
-options(timeout = 360) # Kind of important for some reason
+cmip_root_set("readme_example")   # Set the root folder where to save files 
+options(timeout = 360)            # Kind of important for some reason
 
-files <- cmip_download(results[1], base_dir = root)
-#> Downloading CMIP6.CMIP.CCCma.CanESM5.historical.r10i1p2f1.Amon.tas.gn...
-#> Skipping existing file with good checksum.
+files <- cmip_download(results[1])
+#> Skipping existing file with matching checksum.
 ```
 
 The files are saved mirroring the source file structure to ensure that
 each file is unique.
 
 ``` r
-cat(system(paste0("tree ", shQuote(root)), intern = TRUE), sep = "\n")
+cat(system(paste0("tree ", shQuote(cmip_root_get())), intern = TRUE), sep = "\n")
 #> readme_example
 #> └── CMIP6
 #>     └── CMIP
@@ -90,7 +89,19 @@ cat(system(paste0("tree ", shQuote(root)), intern = TRUE), sep = "\n")
 #>                             └── tas
 #>                                 └── gn
 #>                                     └── 20190429
+#>                                         ├── model.info
 #>                                         └── tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc
 #> 
-#> 10 directories, 1 file
+#> 10 directories, 2 files
 ```
+
+This structure can be parsed with `cmip_available()`
+
+``` r
+cmip_available() |>
+  knitr::kable()
+```
+
+| mip_era | activity_drs | institution_id | source_id | experiment_id | member_id | table_id | variable_id | grid_label | version  | variable_long_name           | datetime_start       | datetime_stop        | nominal_resolution | files                                                                                                                                       |
+|:--------|:-------------|:---------------|:----------|:--------------|:----------|:---------|:------------|:-----------|:---------|:-----------------------------|:---------------------|:---------------------|:-------------------|:--------------------------------------------------------------------------------------------------------------------------------------------|
+| CMIP6   | CMIP         | CCCma          | CanESM5   | historical    | r10i1p2f1 | Amon     | tas         | gn         | 20190429 | Near-Surface Air Temperature | 1850-01-16T12:00:00Z | 2014-12-16T12:00:00Z | 500 km             | readme_example/CMIP6/CMIP/CCCma/CanESM5/historical/r10i1p2f1/Amon/tas/gn/20190429/tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc |

@@ -4,10 +4,10 @@
 \alias{cmip_available}
 \title{List downloaded models.}
 \usage{
-cmip_available(base_dir = cmip_folder_get())
+cmip_available(root = cmip_root_get())
 }
 \arguments{
-\item{base_dir}{Root folder to download and organise the data.}
+\item{root}{Root folder to download and organise the data.}
 }
 \description{
 List downloaded models.

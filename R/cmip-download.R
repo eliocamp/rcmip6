@@ -1,7 +1,7 @@
 #' Downloads CMIP data
 #'
 #' @param results A list of search results from [cmip_search()].
-#' @param base_dir Root folder to download and organise the data.
+#' @param root Root folder to download and organise the data.
 #' @param user,comment Optional strings to use when saving the log for each file.
 #'
 #'
@@ -9,17 +9,17 @@
 #' A list of files, for now.
 #'
 #' @export
-cmip_download <- function(results, base_dir = cmip_folder_get(), user = Sys.info()[["user"]], comment = NULL) {
-  base_dir <- path.expand(base_dir)
-  lapply(results, cmip_download_one, base_dir = base_dir, user = user, comment = comment)
+cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL) {
+  root <- path.expand(root)
+  lapply(results, cmip_download_one, root = root, user = user, comment = comment)
 
 }
 
 cmip_download_one <- function(result,
-                              base_dir = cmip_folder_get(),
+                              root = cmip_root_get(),
                               user = Sys.info()[["user"]],
                               comment = NULL) {
-  dir <- result_dir(result, root = base_dir)
+  dir <- result_dir(result, root = root)
   dir.create(dir, FALSE, TRUE)
 
   url <- paste0("https://", result$index_node, "/search_files/", result$id, "/", result$index_node, "/?limit=999")
@@ -55,7 +55,7 @@ cmip_download_one <- function(result,
 
 
 
-result_dir <- function(result, root = cmip_folder_get()) {
+result_dir <- function(result, root = cmip_root_get()) {
   glue::glue_data(result,
                   result[["directory_format_template_"]][[1]],
                   .open = "%(",

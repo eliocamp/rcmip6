@@ -63,15 +63,22 @@ The, download the data.
 Just as a demonstration, download only the first result
 
 ```{r}
-root <- "readme_example"
-options(timeout = 360) # Kind of important for some reason
+cmip_root_set("readme_example")   # Set the root folder where to save files 
+options(timeout = 360)            # Kind of important for some reason
 
-files <- cmip_download(results[1], base_dir = root)
+files <- cmip_download(results[1])
 ```
 
 The files are saved mirroring the source file structure to ensure that each file is unique. 
 
 ```{r}
-cat(system(paste0("tree ", shQuote(root)), intern = TRUE), sep = "\n")
+cat(system(paste0("tree ", shQuote(cmip_root_get())), intern = TRUE), sep = "\n")
+```
+
+This structure can be parsed with `cmip_available()`
+
+```{r}
+cmip_available() |>
+  knitr::kable()
 ```
 

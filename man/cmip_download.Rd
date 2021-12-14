@@ -6,7 +6,7 @@
 \usage{
 cmip_download(
   results,
-  base_dir = cmip_folder_get(),
+  root = cmip_root_get(),
   user = Sys.info()[["user"]],
   comment = NULL
 )
@@ -14,7 +14,7 @@ cmip_download(
 \arguments{
 \item{results}{A list of search results from \code{\link[=cmip_search]{cmip_search()}}.}
 
-\item{base_dir}{Root folder to download and organise the data.}
+\item{root}{Root folder to download and organise the data.}
 
 \item{user, comment}{Optional strings to use when saving the log for each file.}
 }
