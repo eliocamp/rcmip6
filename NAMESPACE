@@ -3,6 +3,7 @@
 S3method(as.data.frame,cmip_results)
 S3method(print,cmip_results)
 S3method(print,cmip_size)
+export(cmip_available)
 export(cmip_download)
 export(cmip_folder_get)
 export(cmip_folder_set)

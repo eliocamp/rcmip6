@@ -17,7 +17,6 @@ Imports:
     httr,
     digest
 Suggests: 
-    ncdf4,
     rstudioapi,
     knitr,
     rmarkdown

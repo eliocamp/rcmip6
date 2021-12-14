@@ -4,12 +4,19 @@
 \alias{cmip_download}
 \title{Downloads CMIP data}
 \usage{
-cmip_download(results, base_dir = cmip_folder_get())
+cmip_download(
+  results,
+  base_dir = cmip_folder_get(),
+  user = Sys.info()[["user"]],
+  comment = NULL
+)
 }
 \arguments{
 \item{results}{A list of search results from \code{\link[=cmip_search]{cmip_search()}}.}
 
-\item{base_dir}{Root folder to download and organise tha data.}
+\item{base_dir}{Root folder to download and organise the data.}
+
+\item{user, comment}{Optional strings to use when saving the log for each file.}
 }
 \value{
 A list of files, for now.
