@@ -1,37 +1,34 @@
 #' Downloads CMIP data
 #'
 #' @param results A list of search results from [cmip_search()].
-#' @param base_dir Root folder to download and organise tha data.
+#' @param base_dir Root folder to download and organise the data.
+#' @param user,comment Optional strings to use when saving the log for each file.
 #'
 #'
 #' @return
 #' A list of files, for now.
 #'
 #' @export
-cmip_download <- function(results, base_dir = cmip_folder_get()) {
+cmip_download <- function(results, base_dir = cmip_folder_get(), user = Sys.info()[["user"]], comment = NULL) {
   base_dir <- path.expand(base_dir)
-  lapply(results, cmip_download_one, base_dir = base_dir)
+  lapply(results, cmip_download_one, base_dir = base_dir, user = user, comment = comment)
 
 }
 
-cmip_download_one <- function(result, base_dir = cmip_folder_get()) {
+cmip_download_one <- function(result,
+                              base_dir = cmip_folder_get(),
+                              user = Sys.info()[["user"]],
+                              comment = NULL) {
   dir <- result_dir(result, root = base_dir)
   dir.create(dir, FALSE, TRUE)
 
-  message(glue::glue(tr_("Downloading {result$title}...")))
   url <- paste0("https://", result$index_node, "/search_files/", result$id, "/", result$index_node, "/?limit=999")
 
   info <- httr::content(httr::GET(url))$response$docs
 
-  i <- info[[1]]
-  i$url
-  urls <- vapply(info, function(x) x[["url"]][[1]], character(1))
+  jsonlite::write_json(result, file.path(dir, "model.info"), pretty = TRUE)
 
-  urls <- vapply(strsplit(urls, "\\|"), "[", character(1), 1)
-
-
-  files <-   vapply(info, function(i) {
-
+  files <-  vapply(info, function(i) {
     url <- strsplit(i$url[[1]], "\\|")[[1]][1]
     file <- file.path(dir, i$title)
 
@@ -41,12 +38,16 @@ cmip_download_one <- function(result, base_dir = cmip_folder_get()) {
       local_checksum <- digest::digest(file = file, algo = checksum_type)
 
       if (local_checksum == checksum) {
-        message(tr_("Skipping existing file with good checksum."))
+        message(tr_("Skipping existing file with matching checksum."))
         return(file)
       }
     }
+    message(glue::glue(tr_("Downloading {i$title}...")))
     utils::download.file(url = url,
-                  destfile = file)
+                         destfile = file)
+
+    log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
+    writeLines(c(log, comment), file.path(dir, paste0(tools::file_path_sans_ext(i$title), ".log")))
     file
   }, character(1))
   files
