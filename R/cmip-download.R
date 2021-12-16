@@ -3,22 +3,22 @@
 #' @param results A list of search results from [cmip_search()].
 #' @param root Root folder to download and organise the data.
 #' @param user,comment Optional strings to use when saving the log for each file.
-#'
+#' @param ... Arguments passed to [utils::download.file()]
 #'
 #' @return
 #' A list of files.
 #'
 #' @export
-cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL) {
+cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL, ...) {
   root <- path.expand(root)
-  lapply(results, cmip_download_one, root = root, user = user, comment = comment)
+  lapply(results, cmip_download_one, root = root, user = user, comment = comment, ...)
 
 }
 
 cmip_download_one <- function(result,
                               root = cmip_root_get(),
                               user = Sys.info()[["user"]],
-                              comment = NULL) {
+                              comment = NULL, ...) {
   dir <- result_dir(result, root = root)
   dir.create(dir, FALSE, TRUE)
 
@@ -44,7 +44,7 @@ cmip_download_one <- function(result,
     }
     message(glue::glue(tr_("Downloading {i$title}...")))
     utils::download.file(url = url,
-                         destfile = file)
+                         destfile = file, ...)
 
     log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
     writeLines(c(log, comment), file.path(dir, paste0(tools::file_path_sans_ext(i$title), ".log")))

@@ -8,7 +8,8 @@ cmip_download(
   results,
   root = cmip_root_get(),
   user = Sys.info()[["user"]],
-  comment = NULL
+  comment = NULL,
+  ...
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ cmip_download(
 \item{root}{Root folder to download and organise the data.}
 
 \item{user, comment}{Optional strings to use when saving the log for each file.}
+
+\item{...}{Arguments passed to \code{\link[utils:download.file]{utils::download.file()}}}
 }
 \value{
 A list of files.
