@@ -9,6 +9,10 @@ cmip_available(root = cmip_root_get())
 \arguments{
 \item{root}{Root folder to download and organise the data.}
 }
+\value{
+A data.frame.
+}
 \description{
-List downloaded models.
+Reads files in your local CMIP6 directory and parses the contents into a
+data.frame
 }

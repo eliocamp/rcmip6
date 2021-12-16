@@ -19,7 +19,7 @@ cmip_download(
 \item{user, comment}{Optional strings to use when saving the log for each file.}
 }
 \value{
-A list of files, for now.
+A list of files.
 }
 \description{
 Downloads CMIP data
