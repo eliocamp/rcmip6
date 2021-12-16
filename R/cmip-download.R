@@ -26,23 +26,21 @@ cmip_download_one <- function(result,
 
   info <- httr::content(httr::GET(url))$response$docs
 
-  jsonlite::write_json(result, file.path(dir, "model.info"), pretty = TRUE)
-
   files <-  vapply(info, function(i) {
     url <- strsplit(i$url[[1]], "\\|")[[1]][1]
     file <- file.path(dir, i$title)
-
+    message(glue::glue(tr_("Downloading {i$title}...")))
     if (file.exists(file)) {
       checksum_type  <- tolower(i$checksum_type[[1]])
       checksum <- i$checksum[[1]]
       local_checksum <- digest::digest(file = file, algo = checksum_type)
 
       if (local_checksum == checksum) {
-        message(tr_("Skipping existing file with matching checksum."))
+        message(tr_("Skipping (matching checksum)."))
         return(file)
       }
     }
-    message(glue::glue(tr_("Downloading {i$title}...")))
+
     utils::download.file(url = url,
                          destfile = file, ...)
 
@@ -50,6 +48,8 @@ cmip_download_one <- function(result,
     writeLines(c(log, comment), file.path(dir, paste0(tools::file_path_sans_ext(i$title), ".log")))
     file
   }, character(1))
+
+  jsonlite::write_json(result, file.path(dir, "model.info"), pretty = TRUE)
   files
 }
 
