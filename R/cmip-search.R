@@ -12,7 +12,6 @@
 #' On RStudio you can also use the AddIn.
 #'
 #' @return
-#'
 #' A list with search results. This can be parsed with [as.data.frame()] for better inspection.
 #'
 #' @export
@@ -50,42 +49,24 @@ cmip_url_to_list <- function(url) {
 }
 
 cmip_parse_search <- function(results) {
-  parsed <- lapply(results, function(result) {
-    datetime_start <- result$datetime_start
-    if(length(datetime_start) == 0) datetime_start <- NA
 
-    datetime_stop <- result$datetime_stop
-    if(length(datetime_stop) == 0) datetime_stop <- NA
+  cmip6_folder_template <- gsub("%\\(", "", cmip6_folder_template)
+  cmip6_folder_template <- gsub("\\)s", "", cmip6_folder_template)
+  vars <- c(strsplit(cmip6_folder_template, "/")[[1]],
+            "variable_long_name",
+            "datetime_start",
+            "datetime_stop",
+            "nominal_resolution")
 
-    data <- unglue::unglue_data(result[["title"]],
-                                .pattern_python_to_r(result[["dataset_id_template_"]][[1]]))
-    member <- parse_member_id(data$member_id)
+  data <- Reduce(rbind,
+                 lapply(results, function(result) {
+                   data <- as.data.frame(lapply(result[vars], unlist))
+                   data$full_info <- list(result)
+                   data
+                 }))
 
-    data.frame(
-      mip_era = result[["mip_era"]][[1]],
-      institution_id = result[["institution_id"]][[1]],
-      source_id = result$source_id[[1]],
-      experiment_id = result$experiment_id[[1]],
-      sub_experiment_id = result[["sub_experiment_id"]][[1]],
-      experiment_title = result[["experiment_title"]][[1]],
-      member_id = result[["member_id"]][[1]],
-      realization_index = member$realization_index,
-      initialization_index = member$initialization_index,
-      physics_index = member$physics_index,
-      forcing_index = member$forcing_index,
-      table_id = result$table_id[[1]],
-      frequency =  result$frequency[[1]],
-      datetime_start = datetime_start,
-      datetime_stop = datetime_stop,
-      variable_id = result$variable_id[[1]],
-      nominal_resolution = result$nominal_resolution[[1]],
-      grid_label = result$grid_label[[1]],
-      size = result$size/1024/1024
-    )
-  })
 
-  parsed <- do.call(rbind, parsed)
-  parsed
+  data
 }
 
 

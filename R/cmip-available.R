@@ -1,6 +1,13 @@
 #' List downloaded models.
 #'
+#' Reads files in your local CMIP6 directory and parses the contents into a
+#' data.frame
+#'
 #' @inheritParams cmip_download
+#'
+#' @returns
+#' A data.frame.
+#'
 #' @export
 cmip_available <- function(root = cmip_root_get()) {
   info <- list.files(root, pattern = "model.info", recursive = TRUE, full.names = TRUE)
@@ -16,12 +23,14 @@ cmip_available <- function(root = cmip_root_get()) {
 
   data <- Reduce(rbind,
          lapply(info, function(info) {
-           data <- jsonlite::read_json(info, simplifyVector = TRUE)
-           data <- as.data.frame(data[vars])
-
            files <- list.files(dirname(info), pattern = ".nc", recursive = TRUE, full.names = TRUE)
-           data$files <- list(files)
-           data
+           data <- jsonlite::read_json(info, simplifyVector = TRUE)
+
+           info <- as.data.frame(data[vars])
+
+           info$files <- list(files)
+           info$full_info <- list(data)
+           info
          }))
 
   return(data)

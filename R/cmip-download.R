@@ -6,7 +6,7 @@
 #'
 #'
 #' @return
-#' A list of files, for now.
+#' A list of files.
 #'
 #' @export
 cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL) {
