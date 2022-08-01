@@ -20,7 +20,9 @@ cmip_download_one <- function(result,
                               user = Sys.info()[["user"]],
                               comment = NULL, ...) {
   dir <- result_dir(result, root = root)
-  dir.create(dir, FALSE, TRUE)
+
+  # Some results have multiple folders? (CMIP5, seems like)
+  sink <- lapply(dir, dir.create,  showWarnings = FALSE, recursive = TRUE)
 
   url <- paste0("https://", result$index_node, "/search_files/", result$id, "/", result$index_node, "/?limit=999")
 
@@ -28,7 +30,9 @@ cmip_download_one <- function(result,
 
   files <-  vapply(info, function(i) {
     url <- strsplit(i$url[[1]], "\\|")[[1]][1]
-    file <- file.path(dir, i$title)
+
+    i$version <- result$version  # CMIP5 seems to have a different version in the file thing?
+    file <- file.path(result_dir(i), i$title)
     message(glue::glue(tr_("Downloading {i$title}...")))
     if (file.exists(file)) {
       checksum_type  <- tolower(i$checksum_type[[1]])
@@ -45,7 +49,7 @@ cmip_download_one <- function(result,
                          destfile = file, ...)
 
     log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
-    writeLines(c(log, comment), file.path(dir, paste0(tools::file_path_sans_ext(i$title), ".log")))
+    writeLines(c(log, comment), file.path(result_dir(i), paste0(tools::file_path_sans_ext(i$title), ".log")))
     file
   }, character(1))
 
@@ -55,12 +59,22 @@ cmip_download_one <- function(result,
 
 
 
+
 result_dir <- function(result, root = cmip_root_get()) {
-  glue::glue_data(result,
-                  result[["directory_format_template_"]][[1]],
-                  .open = "%(",
-                  .close = ")s"
+
+  template <- result[["directory_format_template_"]][[1]]
+  if (is.null(template)) {
+    # This is CMIP5
+    template <- cmip5_folder_template
+  }
+
+  dir <- glue::glue_data(result,
+                         template,
+                         .open = "%(",
+                         .close = ")s"
   )
+
+  dir
 }
 
 result_filename <- function(result) {
