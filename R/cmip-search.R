@@ -103,3 +103,9 @@ as.data.frame.cmip_results <- function(x, ...) {
   cmip_parse_search(x)
 }
 
+#' @export
+`[.cmip_results` <- function(x, ..., exact = TRUE) {
+  x <- NextMethod("[")
+  class(x) <- c("cmip_results", class(x))
+  x
+}
