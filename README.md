@@ -84,23 +84,21 @@ The files are saved mirroring the source file structure to ensure that
 each file is unique.
 
 ``` r
-cat(system(paste0("tree  -n ", shQuote(cmip_root_get())), intern = TRUE), sep = "\n")
-#> [01;34mreadme_example[00m
-#> └── [01;34mCMIP6[00m
-#>     └── [01;34mCMIP[00m
-#>         └── [01;34mCCCma[00m
-#>             └── [01;34mCanESM5[00m
-#>                 └── [01;34mhistorical[00m
-#>                     └── [01;34mr10i1p2f1[00m
-#>                         └── [01;34mAmon[00m
-#>                             └── [01;34mtas[00m
-#>                                 └── [01;34mgn[00m
-#>                                     └── [01;34m20190429[00m
+fs::dir_tree(cmip_root_get())
+#> readme_example
+#> └── CMIP6
+#>     └── CMIP
+#>         └── CCCma
+#>             └── CanESM5
+#>                 └── historical
+#>                     └── r10i1p2f1
+#>                         └── Amon
+#>                             └── tas
+#>                                 └── gn
+#>                                     └── 20190429
 #>                                         ├── model.info
 #>                                         ├── tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.log
 #>                                         └── tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc
-#> 
-#> 10 directories, 3 files
 ```
 
 This structure can be parsed with `cmip_available()`
