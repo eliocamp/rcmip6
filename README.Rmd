@@ -58,6 +58,7 @@ Sumary of results:
 ```{r}
 results |> 
   cmip_simplify() |>   # To keep only the most informative columns
+  subset(, select = -full_info) |> 
   head(10) |> 
   knitr::kable()
 ```
