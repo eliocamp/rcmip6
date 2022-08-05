@@ -82,7 +82,6 @@ fs::dir_tree(cmip_root_get())
 This structure can be parsed with `cmip_available()`
 
 ```{r}
-cmip_available() |>
-  knitr::kable()
+cmip_available()
 ```
 
