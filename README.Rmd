@@ -76,7 +76,7 @@ files <- cmip_download(results[1])
 The files are saved mirroring the source file structure to ensure that each file is unique. 
 
 ```{r}
-cat(system(paste0("tree ", shQuote(cmip_root_get())), intern = TRUE), sep = "\n")
+cat(system(paste0("tree  -n ", shQuote(cmip_root_get())), intern = TRUE), sep = "\n")
 ```
 
 This structure can be parsed with `cmip_available()`

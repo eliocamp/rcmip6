@@ -84,7 +84,7 @@ The files are saved mirroring the source file structure to ensure that
 each file is unique.
 
 ``` r
-cat(system(paste0("tree ", shQuote(cmip_root_get())), intern = TRUE), sep = "\n")
+cat(system(paste0("tree  -n ", shQuote(cmip_root_get())), intern = TRUE), sep = "\n")
 #> [01;34mreadme_example[00m
 #> └── [01;34mCMIP6[00m
 #>     └── [01;34mCMIP[00m
