@@ -48,13 +48,14 @@ query <- list(
 )
 
 results <- cmip_search(query)
-results
+cmip_info(results)
 ```
 
 Sumary of results:
 
 ```{r}
-as.data.frame(results) |> 
+results |> 
+  cmip_simplify() |>   # To keep only the most informative columns
   head(10) |> 
   knitr::kable()
 ```

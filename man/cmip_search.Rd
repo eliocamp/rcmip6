@@ -2,20 +2,25 @@
 % Please edit documentation in R/cmip-search.R
 \name{cmip_search}
 \alias{cmip_search}
+\alias{cmip_info}
 \alias{cmip_url_to_list}
 \title{Query CMIP data}
 \usage{
 cmip_search(query)
+
+cmip_info(results)
 
 cmip_url_to_list(url)
 }
 \arguments{
 \item{query}{A list that defines the search parameters.}
 
+\item{results}{A list of search results from \code{\link[=cmip_search]{cmip_search()}}.}
+
 \item{url}{The URL of the JSON query to convert into a list. See details.}
 }
 \value{
-A list with search results. This can be parsed with \code{\link[=as.data.frame]{as.data.frame()}} for better inspection.
+A data.table of results.
 }
 \description{
 Query CMIP data
@@ -25,6 +30,6 @@ The easiest way to get a valid \code{query} list is to use the search portal at
 (\url{https://esgf-node.llnl.gov/search/cmip6/})
 to make a search that approximates what you are looking for. Then, under the number of
 results there's a link that reads "return results as JSON". Copy that link and pass it
-to \code{cmip_url_to_list()}.
+to \verb{[cmip_url_to_list()]}.
 On RStudio you can also use the AddIn.
 }

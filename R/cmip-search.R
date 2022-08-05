@@ -8,11 +8,11 @@
 #' ([https://esgf-node.llnl.gov/search/cmip6/](https://esgf-node.llnl.gov/search/cmip6/))
 #' to make a search that approximates what you are looking for. Then, under the number of
 #' results there's a link that reads "return results as JSON". Copy that link and pass it
-#' to `cmip_url_to_list()`.
+#' to `[cmip_url_to_list()]`.
 #' On RStudio you can also use the AddIn.
 #'
 #' @return
-#' A list with search results. This can be parsed with [as.data.frame()] for better inspection.
+#' A data.table of results.
 #'
 #' @export
 cmip_search <- function(query) {
@@ -26,15 +26,17 @@ cmip_search <- function(query) {
   })
 
   search_results <- jsonlite::parse_json(httr::content(httr::GET("https://esgf-node.llnl.gov/esg-search/search",
-                                                                 query = query)) )
-  search_results <- search_results$response$docs
-  class(search_results) <- c("cmip_results", class(search_results))
+                                                                 query = query)),
+                                         simplifyVector = TRUE)
+  search_results <- data.table::as.data.table(search_results$response$docs)
   search_results
 }
 
+#' @inheritParams cmip_download
 #' @export
-print.cmip_results <- function(x, ...) {
-  cat(glue::glue(tr_("Found {length(x)} results totalling {round(cmip_size(x))}Mb.")))
+#' @rdname cmip_search
+cmip_info <- function(results) {
+  cat(glue::glue(tr_("Found {nrow(results)} results totalling {round(cmip_size(results))}Mb.")))
 }
 
 
@@ -49,10 +51,22 @@ cmip_url_to_list <- function(url) {
   return(query)
 }
 
-cmip_parse_search <- function(results) {
-
+#' Simplifies the output of searches
+#'
+#' Removes a lot of less important columns from the output of
+#' `cmip_search()`. The full dataset is stored in the hidden column
+#' `full_info`.
+#' Use `cmip_unsimplify()` to return to the original format (this is needed fr )
+#'
+#' @inheritParams cmip_download
+#' @param data A simplifided output from `cmip_simplify()`
+#'
+#' @export
+cmip_simplify <- function(results) {
   cmip6_folder_template <- gsub("%\\(", "", cmip6_folder_template)
   cmip6_folder_template <- gsub("\\)s", "", cmip6_folder_template)
+  columns <- colnames(results)
+
   vars <- c(strsplit(cmip6_folder_template, "/")[[1]],
             "variable_long_name",
             "datetime_start",
@@ -60,23 +74,30 @@ cmip_parse_search <- function(results) {
             "nominal_resolution")
 
   vars <- setdiff(vars, "root")
+  simple <- results[, vars, with = FALSE]
+  simple$full_info <- split(results[, -vars, with = FALSE], seq_len(nrow(results)))
+  class(simple) <- c("cmip_simple", class(simple))
+  attr(simple, "column") <- columns
+  simple
+}
 
-  data <- Reduce(rbind,
-                 lapply(results, function(result) {
-                   data <- lapply(result[vars], function(x) {
-                     if (is.null(x)) {
-                       return(NA)
-                     }
-                     unlist(x)
-                   })
-                   names(data) <- vars
-                   data <- as.data.frame(data, stringsAsFactors = FALSE)
-                   data$full_info <- list(result)
-                   data
-                 })
-  )
+#' @export
+#' @rdname cmip_simplify
+cmip_unsimplify <- function(data) {
+  full_info <- NULL
+  columns <- attr(data, "column", exact = TRUE)
+  full_info <- data.table::rbindlist(data$full_info)
+  data <- cbind(data.table::copy(data)[, full_info := NULL],
+        full_info)
+  data[, columns, with = FALSE]
+}
 
-  data
+
+#' @export
+print.cmip_simple <- function(x, ...) {
+  full_info <- NULL
+  x <- data.table::copy(x)[, full_info := NULL]
+  NextMethod("print")
 }
 
 
@@ -100,12 +121,8 @@ parse_member_id <- function(member_id) {
 
 #' @export
 as.data.frame.cmip_results <- function(x, ...) {
-  cmip_parse_search(x)
-}
-
-#' @export
-`[.cmip_results` <- function(x, ..., exact = TRUE) {
-  x <- NextMethod("[")
-  class(x) <- c("cmip_results", class(x))
+  .Deprecated(msg = "`as.data.frame.cmip_results()` is deprecated because `cmip_search()` now returns data.frames. To get a simplified data.frame use `cmip_simplify()`.")
   x
 }
+
+.datatable.aware <- TRUE

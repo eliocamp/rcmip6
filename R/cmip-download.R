@@ -11,8 +11,14 @@
 #' @export
 cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL, ...) {
   root <- path.expand(root)
-  lapply(results, cmip_download_one, root = root, user = user, comment = comment, ...)
 
+  if (inherits(results, "cmip_simple")) {
+    results <- cmip_unsimplify(results)
+  }
+
+  lapply(seq_len(nrow(results)), function(i) {
+    cmip_download_one(results[i, ], root = root, user = user, comment = comment, ...)
+  })
 }
 
 cmip_download_one <- function(result,
@@ -53,7 +59,8 @@ cmip_download_one <- function(result,
     file
   }, character(1))
 
-  jsonlite::write_json(result, file.path(dir, "model.info"), pretty = TRUE)
+  writeLines(jsonlite::serializeJSON(result, pretty = TRUE),
+             file.path(dir, "model.info"),)
   files
 }
 
@@ -86,13 +93,12 @@ result_filename <- function(result) {
 }
 
 
-
 #' Computes the total size of a search result in Mb.
 #'
 #' @inheritParams cmip_download
 #' @export
 cmip_size <- function(results) {
-  res <- sum(vapply(results, function(r) r$size, FUN.VALUE = 1))/1024/1024
+  res <- sum(results$size)/1024/1024
   class(res) <- c("cmip_size", class(res))
   res
 }
