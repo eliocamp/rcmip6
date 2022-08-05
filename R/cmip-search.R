@@ -44,6 +44,7 @@ cmip_url_to_list <- function(url) {
   query <- httr::parse_url(url)$query
   no_query <- c("offset", "limit", "facets", "format")
   query <- query[!(names(query) %in% no_query)]
+  query <- lapply(query, function(q) gsub("\\+", " ", q))
 
   return(query)
 }
