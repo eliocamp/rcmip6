@@ -112,7 +112,7 @@ cmip_unsimplify <- function(data) {
 #' @export
 print.cmip_simple <- function(x, ...) {
   full_info <- NULL
-  x <- data.table::copy(x)[, full_info := NULL]
+  x <- data.table::copy(x)[, full_info := NULL][]
   NextMethod("print")
 }
 
