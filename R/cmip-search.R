@@ -51,6 +51,22 @@ cmip_url_to_list <- function(url) {
   return(query)
 }
 
+list_pretty_format <- function(list) {
+  max_n <- max(vapply(names(list), nchar, 0))
+
+  elements <- lapply(seq_along(list), function(i) {
+    paste0("  ",
+           formatC(names(list)[i], width = -max_n, flag = " "),
+           " = \"",
+           list[[i]], "\"")
+  })
+
+  paste0("query <- list(\n",
+         paste0(unlist(elements), collapse = ",\n"),
+         "\n)\n")
+}
+
+
 #' Simplifies the output of searches
 #'
 #' Removes a lot of less important columns from the output of

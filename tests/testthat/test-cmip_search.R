@@ -1,12 +1,14 @@
 
-query <- list(type = "Dataset",
-              replica = "false",
-              latest = "true",
-              mip_era = "CMIP6",
-              frequency = "mon",
-              variable_id = "tosga",
-              experiment_id = "piControl",
-              project = "CMIP6")
+query <- list(
+  type          = "Dataset",
+  replica       = "false",
+  latest        = "true",
+  mip_era       = "CMIP6",
+  frequency     = "mon",
+  variable_id   = "tosga",
+  experiment_id = "piControl",
+  project       = "CMIP6"
+)
 query_url <- "http://esgf-node.llnl.gov/esg-search/search/?offset=0&limit=10&type=Dataset&replica=false&latest=true&mip_era=CMIP6&experiment_id=piControl&frequency=mon&variable_id=tosga&project=CMIP6&facets=mip_era%2Cactivity_id%2Cproduct%2Csource_id%2Cinstitution_id%2Csource_type%2Cnominal_resolution%2Cexperiment_id%2Csub_experiment_id%2Cvariant_label%2Cgrid_label%2Ctable_id%2Cfrequency%2Crealm%2Cvariable_id%2Ccf_standard_name%2Cdata_node&format=application%2Fsolr%2Bjson"
 
 root <- tempfile()
@@ -25,6 +27,8 @@ test_that("URL to list works", {
   # are equivalent queries.
   expect_equal(cmip_search(cmip_url_to_list(query_url)),
                results)
+
+  expect_snapshot_output(cat(list_pretty_format(query)))
 })
 
 
