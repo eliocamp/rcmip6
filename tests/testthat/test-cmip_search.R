@@ -35,6 +35,10 @@ test_that("cmip_simplify works", {
 
   expect_equal(results[1:4],
                cmip_unsimplify(cmip_simplify(results)[1:4]))
+
+  x <- capture.output(print(cmip_simplify(results)))
+  expect_false(any(grepl("full_info", x)))
+
 })
 
 test_that("cmip_info() works", {
@@ -53,6 +57,9 @@ test_that("Download works", {
   expect_true(all(file.exists(unlist(files))))
   suppressMessages(expect_message(cmip_download(results[1]), "Skipping"))
 
+  suppressMessages(expect_type(files_simple <- cmip_download(cmip_simplify(results)[1:2]), "list"))
+  expect_equal(files, files_simple)
+
 })
 
 test_that("cmip_available() works", {
@@ -68,4 +75,5 @@ test_that("cmip_available() works", {
   expect_equal(results[c(1:2)][order(id)],
                available[order(id)])
 })
+
 

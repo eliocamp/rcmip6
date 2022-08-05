@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # rcmip6
 
 <!-- badges: start -->
+[![Codecov test coverage](https://codecov.io/gh/eliocamp/rcmip6/branch/main/graph/badge.svg)](https://app.codecov.io/gh/eliocamp/rcmip6?branch=main)
 <!-- badges: end -->
 
 The goal of rcmip6 is to search and download data from the CMIP6 project. 

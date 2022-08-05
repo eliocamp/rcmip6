@@ -5,3 +5,4 @@
 R/cmip6.R
 ^README_cache$
 ^readme_example$
+^codecov\.yml$

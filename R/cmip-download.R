@@ -84,14 +84,6 @@ result_dir <- function(result, root = cmip_root_get()) {
   dir
 }
 
-result_filename <- function(result) {
-  glue::glue_data(result,
-                  result[["dataset_id_template_"]][[1]],
-                  .open = "%(",
-                  .close = ")s"
-  )
-}
-
 
 #' Computes the total size of a search result in Mb.
 #'

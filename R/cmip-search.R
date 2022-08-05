@@ -101,28 +101,4 @@ print.cmip_simple <- function(x, ...) {
 }
 
 
-parse_member_id <- function(member_id) {
-  data <- unglue::unglue_data(member_id,
-                              c("{sub_experiment_id}-r{realization_index}i{initialization_index}p{physics_index}f{forcing_index}",
-                                "r{realization_index}i{initialization_index}p{physics_index}f{forcing_index}",
-                                "{sub_experiment_id}-i{initialization_index}p{physics_index}f{forcing_index}",
-                                "i{initialization_index}p{physics_index}f{forcing_index}"))
-  if (!("sub_experiment_id" %in% colnames(data))) {
-    data[["sub_experiment_id"]] <- rep("none", nrow(data))
-  }
-  data[["sub_experiment_id"]] <- replace(data[["sub_experiment_id"]], is.na(data[["sub_experiment_id"]]), "none")
-
-  if (!("realization_index" %in% colnames(data))) {
-    data[["realization_index"]] <- rep(NA, nrow(data))
-  }
-
-  data
-}
-
-#' @export
-as.data.frame.cmip_results <- function(x, ...) {
-  .Deprecated(msg = "`as.data.frame.cmip_results()` is deprecated because `cmip_search()` now returns data.frames. To get a simplified data.frame use `cmip_simplify()`.")
-  x
-}
-
 .datatable.aware <- TRUE
