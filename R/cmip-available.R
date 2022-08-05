@@ -10,7 +10,7 @@
 #'
 #' @export
 cmip_available <- function(root = cmip_root_get()) {
-  info <- list.files(root, pattern = "model.info", recursive = TRUE, full.names = TRUE)
+  infos <- list.files(root, pattern = "model.info", recursive = TRUE, full.names = TRUE)
 
   cmip6_folder_template <- gsub("%\\(", "", cmip6_folder_template)
   cmip6_folder_template <- gsub("\\)s", "", cmip6_folder_template)
@@ -20,9 +20,10 @@ cmip_available <- function(root = cmip_root_get()) {
             "datetime_start",
             "datetime_stop",
             "nominal_resolution")
+  vars <- setdiff(vars, "root")
 
   data <- Reduce(rbind,
-         lapply(info, function(info) {
+         lapply(infos, function(info) {
            files <- list.files(dirname(info), pattern = ".nc", recursive = TRUE, full.names = TRUE)
            data <- jsonlite::read_json(info, simplifyVector = TRUE)
 

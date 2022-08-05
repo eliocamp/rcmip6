@@ -60,19 +60,6 @@ cmip_parse_search <- function(results) {
 
   vars <- setdiff(vars, "root")
 
-  a <- lapply(results, function(result) {
-    data <- lapply(result[vars], function(x) {
-      if (is.null(x)) {
-        return(NA)
-      }
-      unlist(x)
-    })
-    names(data) <- vars
-    as.data.frame(data, stringsAsFactors = FALSE)
-    # data$full_info <- list(result)
-    data
-  })
-
   data <- Reduce(rbind,
                  lapply(results, function(result) {
                    data <- lapply(result[vars], function(x) {
