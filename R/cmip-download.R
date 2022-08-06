@@ -52,7 +52,8 @@ cmip_download_one <- function(result,
     }
 
     utils::download.file(url = url,
-                         destfile = file, ...)
+                         destfile = file, ...,
+                         mode = "wb")
 
     log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
     writeLines(c(log, comment), file.path(result_dir(i), paste0(tools::file_path_sans_ext(i$title), ".log")))
