@@ -12,4 +12,6 @@
     This way of storing information about available files will most likely change, since it's very inefficient for large datasets of thousands of files.
     Sorry for the inconvenience, but this is an experimental and under-development package!
 
+-   To speed up downloads, `cmip_download()` will try to read the checksum of each file from a previously-saved file with extension `.chksum` and it will create it if it doesn't exist.
+
 -   Added a `NEWS.md` file to track changes to the package.

@@ -41,9 +41,16 @@ cmip_download_one <- function(result,
     file <- file.path(result_dir(i), i$title)
     message(glue::glue(tr_("Downloading {i$title}...")))
     if (file.exists(file)) {
+      checksum_file <- paste0(file, ".chksum")
       checksum_type  <- tolower(i$checksum_type[[1]])
+      if (file.exists(checksum_file)) {
+        local_checksum <- readLines(checksum_file)
+      } else {
+        local_checksum <- digest::digest(file = file, algo = checksum_type)
+        writeLines(text = local_checksum, con = checksum_file)
+      }
+
       checksum <- i$checksum[[1]]
-      local_checksum <- digest::digest(file = file, algo = checksum_type)
 
       if (local_checksum == checksum) {
         message(tr_("Skipping (matching checksum)."))
