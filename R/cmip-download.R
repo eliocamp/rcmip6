@@ -3,7 +3,7 @@
 #' @param results A list of search results from [cmip_search()].
 #' @param root Root folder to download and organise the data.
 #' @param user,comment Optional strings to use when saving the log for each file.
-#' @param ... Arguments passed to [utils::download.file()]
+#' @param ... Ignored
 #'
 #' @return
 #' A list of files.
@@ -27,6 +27,7 @@ cmip_download_one <- function(result,
                               comment = NULL, ...) {
   dir <- result_dir(result, root = root)
 
+  use_https <- list(...)[["use_https"]]
   # Some results have multiple folders? (CMIP5, seems like)
   sink <- lapply(dir, dir.create,  showWarnings = FALSE, recursive = TRUE)
 
@@ -58,9 +59,16 @@ cmip_download_one <- function(result,
       }
     }
 
-    utils::download.file(url = url,
-                         destfile = file, ...,
-                         mode = "wb")
+    # Workaround para evitar el proxy de mierda de la UBA
+    if (isTRUE(use_https)) {
+      url <- gsub("http:", "https:", url)
+    }
+
+    message(glue::glue(tr_("Downloading from {url}")))
+    response <- httr::RETRY("GET", url = url,
+                            times = 10,
+                            httr::write_disk(file, overwrite = TRUE),
+                            httr::progress())
 
     log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
     writeLines(c(log, comment), file.path(result_dir(i), paste0(tools::file_path_sans_ext(i$title), ".log")))
@@ -71,8 +79,6 @@ cmip_download_one <- function(result,
              file.path(dir, "model.info"),)
   files
 }
-
-
 
 
 result_dir <- function(result, root = cmip_root_get()) {
