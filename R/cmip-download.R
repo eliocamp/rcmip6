@@ -69,8 +69,11 @@ cmip_download_one <- function(result,
                             times = 10,
                             httr::write_disk(file, overwrite = TRUE),
                             httr::progress())
-    httr::stop_for_status(response, task = NULL)
+    httr::warn_for_status(response, task = NULL)
 
+    if (httr::http_error(response)) {
+      return(NA_character_)
+    }
     log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
     writeLines(c(log, comment), file.path(result_dir(i), paste0(tools::file_path_sans_ext(i$title), ".log")))
     file
