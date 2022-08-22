@@ -69,7 +69,7 @@ cmip_download_one <- function(result,
                             times = 10,
                             httr::write_disk(file, overwrite = TRUE),
                             httr::progress()), silent = TRUE)
-    if (inherits("try-error", response))  {
+    if (inherits(response, "try-error"))  {
       warning(response)
       return(NA_character_)
     }
