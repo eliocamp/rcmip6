@@ -19,7 +19,7 @@ cmip_download(
 
 \item{user, comment}{Optional strings to use when saving the log for each file.}
 
-\item{...}{Arguments passed to \code{\link[utils:download.file]{utils::download.file()}}}
+\item{...}{Ignored}
 }
 \value{
 A list of files.

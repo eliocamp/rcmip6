@@ -35,11 +35,12 @@ cmip_search <- function(query) {
 #' @export
 #' @rdname cmip_search
 cmip_info <- function(results) {
-  resutls_filter <- results[, .SD[1], by = instance_id]
+  N <- .N <- .SD <- instance_id <- NULL
+  results_filter <- results[, .SD[1], by = instance_id]
 
   n_replicas <- nrow(results[, .N, by = instance_id][N > 1])
 
-  string <- tr_("Found {nrow(resutls_filter)} results (with {n_replicas} replicas) totalling {round(cmip_size(resutls_filter))}Mb.")
+  string <- tr_("Found {nrow(results_filter)} results (with {n_replicas} replicas) totalling {round(cmip_size(results_filter))}Mb.")
 
   glue::glue(string)
 }
