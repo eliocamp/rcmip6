@@ -21,6 +21,20 @@ cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["u
   })
 }
 
+
+filter_up_node <- function(data_node) {
+  # Checks possibel nodes and keeps the first one that's up.
+  for (n in seq_along(data_node)) {
+    alive <- any(!is.na(pingr::ping(data_node[n])))
+    if (alive) {
+      break
+    }
+  }
+
+  results[n, ]
+}
+
+
 cmip_download_one <- function(result,
                               root = cmip_root_get(),
                               user = Sys.info()[["user"]],

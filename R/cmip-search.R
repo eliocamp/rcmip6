@@ -35,9 +35,9 @@ cmip_search <- function(query) {
 #' @export
 #' @rdname cmip_search
 cmip_info <- function(results) {
-  n_replicas <- sum(results[["replica"]])
+  resutls_filter <- results[, .SD[1], by = instance_id]
 
-  resutls_filter <- results[!results[["replica"]], ]
+  n_replicas <- nrow(results[, .N, by = instance_id][N > 1])
 
   string <- tr_("Found {nrow(resutls_filter)} results (with {n_replicas} replicas) totalling {round(cmip_size(resutls_filter))}Mb.")
 
