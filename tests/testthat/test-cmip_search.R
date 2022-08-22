@@ -46,7 +46,7 @@ test_that("cmip_simplify works", {
 })
 
 test_that("cmip_info() works", {
-  expect_output(cmip_info(results), "results")
+  expect_output(cat(cmip_info(results)), "results")
 
 })
 
