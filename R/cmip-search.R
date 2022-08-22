@@ -19,7 +19,6 @@ cmip_search <- function(query) {
   query$format  <- "application/solr+json"
   query$limit   <- "9999"
   query$offset  <- "0"
-  query$replica <- "false"
 
   query <- lapply(query, function(q) {
     paste0(q, collapse = ",")
