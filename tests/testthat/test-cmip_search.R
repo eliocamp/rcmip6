@@ -18,7 +18,6 @@ results <- cmip_search(query)
 test_that("Search returns results", {
   expect_s3_class(results, "data.table")
   expect_true(nrow(results) > 0)
-
 })
 
 test_that("URL to list works", {
@@ -42,12 +41,10 @@ test_that("cmip_simplify works", {
 
   x <- capture.output(print(cmip_simplify(results)))
   expect_false(any(grepl("full_info", x)))
-
 })
 
 test_that("cmip_info() works", {
   expect_output(cat(cmip_info(results)), "results")
-
 })
 
 test_that("Download works", {
@@ -63,7 +60,6 @@ test_that("Download works", {
 
   suppressMessages(expect_type(files_simple <- cmip_download(cmip_simplify(results)[1:2]), "list"))
   expect_equal(files, files_simple)
-
 })
 
 test_that("cmip_available() works", {

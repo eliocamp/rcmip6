@@ -33,7 +33,14 @@ cmip_download_one <- function(result,
 
   url <- paste0("https://", result$index_node, "/search_files/", result$id, "/", result$index_node, "/?limit=999")
 
-  info <- httr::content(httr::GET(url))$response$docs
+  info <- httr::RETRY("GET", url = url)
+  httr::warn_for_status(info)
+
+  if (httr::http_error(info)) {
+    return(NA_character_)
+  }
+
+  info <- httr::content(info)$response$docs
 
   files <-  vapply(info, function(i) {
     url <- strsplit(i$url[[1]], "\\|")[[1]][1]
@@ -69,7 +76,7 @@ cmip_download_one <- function(result,
     response <- try(httr::RETRY("GET", url = url,
                             times = 3,
                             httr::write_disk(file, overwrite = TRUE),
-                            httr::progress()), silent = TRUE)
+                            httr::progress()))
 
     # RETRY will raise a stop() if the last try is a curl error
     # so we need to capture it.
