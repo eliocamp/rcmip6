@@ -67,7 +67,7 @@ cmip_download_one <- function(result,
 
     message(glue::glue(tr_("Downloading from {url}")))
     response <- try(httr::RETRY("GET", url = url,
-                            times = 10,
+                            times = 3,
                             httr::write_disk(file, overwrite = TRUE),
                             httr::progress()), silent = TRUE)
 
