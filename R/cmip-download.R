@@ -41,9 +41,10 @@ cmip_download_one <- function(result,
     i$version <- result$version  # CMIP5 seems to have a different version in the file thing?
     file <- file.path(result_dir(i), i$title)
     message(glue::glue(tr_("Downloading {i$title}...")))
+    checksum_file <- paste0(file, ".chksum")
+    checksum_type  <- tolower(i$checksum_type[[1]])
+
     if (file.exists(file)) {
-      checksum_file <- paste0(file, ".chksum")
-      checksum_type  <- tolower(i$checksum_type[[1]])
       if (file.exists(checksum_file)) {
         local_checksum <- readLines(checksum_file)
       } else {
@@ -69,16 +70,27 @@ cmip_download_one <- function(result,
                             times = 10,
                             httr::write_disk(file, overwrite = TRUE),
                             httr::progress()), silent = TRUE)
+
+    # RETRY will raise a stop() if the last try is a curl error
+    # so we need to capture it.
     if (inherits(response, "try-error"))  {
       warning(response)
+      unlink(file)
       return(NA_character_)
     }
 
-    httr::warn_for_status(response, task = NULL)
-
+    # Trap http errors
     if (httr::http_error(response)) {
+      httr::warn_for_status(response, task = NULL)
+      unlink(file)
       return(NA_character_)
     }
+
+    # Compute and save checksum. Perhaps we need to also check if it's correct, but
+    # what should we do if it's not?
+    local_checksum <- digest::digest(file = file, algo = checksum_type)
+    writeLines(text = local_checksum, con = checksum_file)
+
     log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
     writeLines(c(log, comment), file.path(result_dir(i), paste0(tools::file_path_sans_ext(i$title), ".log")))
     file
