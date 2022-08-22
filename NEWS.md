@@ -4,6 +4,7 @@
 
 -   To speed up downloads, `cmip_download()` will try to read the checksum of each file from a previously-saved file with extension `.chksum` and it will create it if it doesn't exist.
 -   `cmip_download()` now doesn't stop after a failed download. Instead it throws a warning and continues with the next files.
+-   `cmip_search()` now allows to search for replicas.
 
 ## Breaking changes
 

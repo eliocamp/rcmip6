@@ -35,7 +35,13 @@ cmip_search <- function(query) {
 #' @export
 #' @rdname cmip_search
 cmip_info <- function(results) {
-  cat(glue::glue(tr_("Found {nrow(results)} results totalling {round(cmip_size(results))}Mb.")))
+  n_replicas <- sum(results[["replica"]])
+
+  resutls_filter <- results[!results[["replica"]], ]
+
+  string <- tr_("Found {nrow(resutls_filter)} results (with {n_replicas} replicas) totalling {round(cmip_size(resutls_filter))}Mb.")
+
+  glue::glue(string)
 }
 
 
@@ -103,7 +109,7 @@ cmip_unsimplify <- function(data) {
   columns <- attr(data, "column", exact = TRUE)
   full_info <- data.table::rbindlist(data$full_info)
   data <- cbind(data.table::copy(data)[, full_info := NULL],
-        full_info)
+                full_info)
   data[, columns, with = FALSE]
 }
 
