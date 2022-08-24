@@ -6,6 +6,7 @@
 -   `cmip_download()` now doesn't stop after a failed download. Instead it throws a warning and continues with the next files.
 -   `cmip_search()` now allows to search for replicas.
 -   `filter_replicas()` will check online status of the datanodes and return a single replica per result that's online.
+-   `cmip_search()` now turns most columns into vector columns instead of list columns.
 
 ## Breaking changes
 

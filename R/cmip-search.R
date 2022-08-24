@@ -28,7 +28,26 @@ cmip_search <- function(query) {
                                                                  query = query)),
                                          simplifyVector = TRUE)
   search_results <- data.table::as.data.table(search_results$response$docs)
-  search_results
+  columns_to_vector(search_results)[]
+}
+
+columns_to_vector <- function(results) {
+  to_vector <- c("activity_drs", "activity_id", "cf_standard_name", "citation_url",
+                 "data_specs_version", "dataset_id_template_", "directory_format_template_",
+                 "experiment_id", "experiment_title", "frequency", "further_info_url",
+                 "grid", "grid_label", "institution_id", "member_id", "mip_era",
+                 "model_cohort", "nominal_resolution", "pid", "product", "project",
+                 "realm", "source_id", "sub_experiment_id", "table_id", "variable",
+                 "variable_id", "variable_long_name", "variable_units", "variant_label",
+                 "geo_units", "branch_method", "short_description")
+
+  for (col in to_vector) {
+    vec <- results[[col]]
+    vec[vapply(vec, is.null, logical(1))] <- NA
+
+    data.table::set(results, NULL, col, unlist(vec))
+  }
+  results
 }
 
 #' @inheritParams cmip_download
