@@ -97,9 +97,9 @@ cmip_download_one <- function(result,
 
     message(glue::glue(tr_("Downloading from {url}")))
     response <- try(httr::RETRY("GET", url = url,
-                            times = 3,
-                            httr::write_disk(file, overwrite = TRUE),
-                            httr::progress()))
+                                times = 3,
+                                httr::write_disk(file, overwrite = TRUE),
+                                httr::progress()))
 
     # RETRY will raise a stop() if the last try is a curl error
     # so we need to capture it.
@@ -126,8 +126,18 @@ cmip_download_one <- function(result,
     file
   }, character(1))
 
-  writeLines(jsonlite::serializeJSON(result, pretty = TRUE),
-             file.path(dir, "model.info"),)
+
+  if (any(is.na(files))) {
+    result[["complete_download"]] <- FALSE
+  } else {
+    result[["complete_download"]] <- TRUE
+  }
+
+  if (any(!is.na(files))) {
+    writeLines(jsonlite::serializeJSON(result, pretty = TRUE),
+               file.path(dir, "model.info"),)
+  }
+
   files
 }
 
