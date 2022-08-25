@@ -2,7 +2,6 @@
 
     query <- list(
       type          = "Dataset",
-      replica       = "false",
       latest        = "true",
       mip_era       = "CMIP6",
       frequency     = "mon",

@@ -1,7 +1,6 @@
 
 query <- list(
   type          = "Dataset",
-  replica       = "false",
   latest        = "true",
   mip_era       = "CMIP6",
   frequency     = "mon",
@@ -9,7 +8,7 @@ query <- list(
   experiment_id = "piControl",
   project       = "CMIP6"
 )
-query_url <- "http://esgf-node.llnl.gov/esg-search/search/?offset=0&limit=10&type=Dataset&replica=false&latest=true&mip_era=CMIP6&experiment_id=piControl&frequency=mon&variable_id=tosga&project=CMIP6&facets=mip_era%2Cactivity_id%2Cproduct%2Csource_id%2Cinstitution_id%2Csource_type%2Cnominal_resolution%2Cexperiment_id%2Csub_experiment_id%2Cvariant_label%2Cgrid_label%2Ctable_id%2Cfrequency%2Crealm%2Cvariable_id%2Ccf_standard_name%2Cdata_node&format=application%2Fsolr%2Bjson"
+query_url <- "http://esgf-node.llnl.gov/esg-search/search/?offset=0&limit=10&type=Dataset&latest=true&mip_era=CMIP6&experiment_id=piControl&frequency=mon&variable_id=tosga&project=CMIP6&facets=mip_era%2Cactivity_id%2Cproduct%2Csource_id%2Cinstitution_id%2Csource_type%2Cnominal_resolution%2Cexperiment_id%2Csub_experiment_id%2Cvariant_label%2Cgrid_label%2Ctable_id%2Cfrequency%2Crealm%2Cvariable_id%2Ccf_standard_name%2Cdata_node&format=application%2Fsolr%2Bjson"
 
 root <- tempfile()
 dir.create(root)
@@ -19,6 +18,7 @@ test_that("Search returns results", {
   expect_s3_class(results, "data.table")
   expect_true(nrow(results) > 0)
 })
+
 
 test_that("URL to list works", {
   # I don't test that query == cmip_url_to_list(query_url) because
@@ -30,6 +30,16 @@ test_that("URL to list works", {
   expect_snapshot_output(cat(list_pretty_format(query)))
 })
 
+test_that("search includes replicas by default",  {
+  expect_true(any(results[, .N, by = instance_id][["N"]] > 1))
+})
+
+
+test_that("cmip_filter_replicas works", {
+  filtered <- cmip_filter_replicas(results)
+
+  expect_true(all(filtered[, .N, by = instance_id][["N"]] == 1))
+})
 
 
 test_that("cmip_search interprets character vectors", {
