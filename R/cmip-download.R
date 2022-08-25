@@ -12,6 +12,11 @@
 cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL, ...) {
   root <- path.expand(root)
 
+  # Evaluate these now so that if they involve expressions that can fail,
+  # they fail early.
+  force(user)
+  force(comment)
+
   if (inherits(results, "cmip_simple")) {
     results <- cmip_unsimplify(results)
   }
