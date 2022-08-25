@@ -16,11 +16,33 @@ cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["u
     results <- cmip_unsimplify(results)
   }
 
-  lapply(seq_len(nrow(results)), function(i) {
+  files <- lapply(seq_len(nrow(results)), function(i) {
     cmip_download_one(results[i, ], root = root, user = user, comment = comment, ...)
   })
+
+  downloaded <- vapply(files, function(x) all(!is.na(x)), logical(1))
+
+  # Some instances can fail in one replica but not others,
+  # so we have to list all instances and remove the
+  all_instances <- results[["instance_id"]]
+  downloaded_instances <- all_instances[downloaded]
+  failed_instances <- setdiff(all_instances, downloaded_instances)
+
+  if (length(failed_instances) != 0) {
+    warning("Failed to download some instances, query them with,\n", instance_query(failed_instances))
+  }
+  return(invisible(files))
+
 }
 
+
+instance_query <- function(x) {
+  start <- "cmip_search(c(\""
+  space <- paste0(", \n", paste0(rep(" ", nchar(start)), collapse = ""))
+  x <- paste(x, collapse = space)
+
+  paste0(start, x, "\"))")
+}
 
 cmip_download_one <- function(result,
                               root = cmip_root_get(),

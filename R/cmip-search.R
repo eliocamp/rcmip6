@@ -1,6 +1,7 @@
 #' Query CMIP data
 #'
-#' @param query A list that defines the search parameters.
+#' @param query A list that defines the search parameters. Optionally, a character
+#' vector of instances IDs to be searched.
 #' @param url The URL of the JSON query to convert into a list. See details.
 #'
 #' @details
@@ -16,6 +17,12 @@
 #'
 #' @export
 cmip_search <- function(query) {
+  if (is.character(query)) {
+    query <- list(
+      instance_id = query
+    )
+  }
+
   query$format  <- "application/solr+json"
   query$limit   <- "9999"
   query$offset  <- "0"

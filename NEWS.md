@@ -7,6 +7,7 @@
 -   `cmip_search()` now allows to search for replicas.
 -   `filter_replicas()` will check online status of the datanodes and return a single replica per result that's online.
 -   `cmip_search()` now turns most columns into vector columns instead of list columns.
+-   `cmip_search()` accepts a character vector query. It will be interpreted as a list of instances.
 
 ## Breaking changes
 

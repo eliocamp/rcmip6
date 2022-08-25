@@ -31,6 +31,16 @@ test_that("URL to list works", {
 })
 
 
+
+test_that("cmip_search interprets character vectors", {
+  instances_query <- c("CMIP6.CMIP.CNRM-CERFACS.CNRM-ESM2-1.historical.r6i1p1f2.Omon.tos.gn.v20200117",
+                       "CMIP6.CMIP.CNRM-CERFACS.CNRM-ESM2-1.historical.r11i1p1f2.Omon.tos.gn.v20200408")
+  instances_results <- unique(cmip_search(instances_query)[["instance_id"]])
+
+  expect_equal(sort(instances_query), sort(instances_results))
+})
+
+
 test_that("cmip_simplify works", {
   expect_s3_class(cmip_simplify(results), "data.table")
   expect_equal(results,
