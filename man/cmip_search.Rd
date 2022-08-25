@@ -13,7 +13,8 @@ cmip_info(results)
 cmip_url_to_list(url)
 }
 \arguments{
-\item{query}{A list that defines the search parameters.}
+\item{query}{A list that defines the search parameters. Optionally, a character
+vector of instances IDs to be searched.}
 
 \item{results}{A list of search results from \code{\link[=cmip_search]{cmip_search()}}.}
 
