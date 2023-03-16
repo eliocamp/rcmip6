@@ -7,6 +7,8 @@
 cmip_download(
   results,
   root = cmip_root_get(),
+  year_start = -Inf,
+  year_end = Inf,
   user = Sys.info()[["user"]],
   comment = NULL,
   ...
@@ -16,6 +18,10 @@ cmip_download(
 \item{results}{A list of search results from \code{\link[=cmip_search]{cmip_search()}}.}
 
 \item{root}{Root folder to download and organise the data.}
+
+\item{year_start}{Restrict the download of model output with files that include at least some data after this year. Defaults to -Inf to include all possible files}
+
+\item{year_end}{Restrict the download of model output with files that include at least some data before this year. Defaults to Inf to include all possible files}
 
 \item{user, comment}{Optional strings to use when saving the log for each file.}
 
