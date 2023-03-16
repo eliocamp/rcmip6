@@ -2,6 +2,8 @@
 #'
 #' @param results A list of search results from [cmip_search()].
 #' @param root Root folder to download and organise the data.
+#' @param year_start Restrict the download of model output with files that include at least some data after this year. Defaults to 1850 to include all possible files
+#' @param year_end Restrict the download of model output with files that include at least some data before this year. Defaults to 2300 to include all possible files
 #' @param user,comment Optional strings to use when saving the log for each file.
 #' @param ... Ignored
 #'
@@ -9,7 +11,12 @@
 #' A list of files.
 #'
 #' @export
-cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL, ...) {
+cmip_download <- function(results, root = cmip_root_get(), year_start = 1850, year_end = 2300, user = Sys.info()[["user"]], comment = NULL, ...) {
+
+  if(year_start > year_end) {
+    stop("The start date can not be after the end date")
+  }
+
   root <- path.expand(root)
 
   # Evaluate these now so that if they involve expressions that can fail,
@@ -22,7 +29,7 @@ cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["u
   }
 
   files <- lapply(seq_len(nrow(results)), function(i) {
-    cmip_download_one(results[i, ], root = root, user = user, comment = comment, ...)
+    cmip_download_one(results[i, ], year_start = year_start, year_end = year_end, root = root, user = user, comment = comment, ...)
   })
 
   downloaded <- vapply(files, function(x) all(!is.na(x)), logical(1))
@@ -49,10 +56,7 @@ instance_query <- function(x) {
   paste0(start, x, "\"))")
 }
 
-cmip_download_one <- function(result,
-                              root = cmip_root_get(),
-                              user = Sys.info()[["user"]],
-                              comment = NULL, ...) {
+cmip_download_one <- function(result, root = cmip_root_get(), year_start, year_end, user = Sys.info()[["user"]], comment = NULL, ...) {
   dir <- result_dir(result, root = root)
 
   use_https <- list(...)[["use_https"]]
@@ -73,11 +77,36 @@ cmip_download_one <- function(result,
   files <-  vapply(info, function(i) {
     url <- strsplit(i$url[[1]], "\\|")[[1]][1]
 
+    # Get the dates covered by the file
+    file_date_range <- strsplit(url, "gn\\_|gr\\_")[[1]][2]
+    file_date_start <- as.numeric(substr(strsplit(file_date_range, "-")[[1]][1], 1, 4))
+    file_date_end <- as.numeric(substr(strsplit(file_date_range, "-")[[1]][2], 1, 4))
+
+    # Get the intersections of windows specified by user and dates contained in the file
+    # These statements could be nested, but are not too expensive anyway
+    # Is the file fully inside the window?
+    file_inside_window <- (year_start <= file_date_start) & (file_date_end <= year_end)
+    # Is the window specified by the user within the file?
+    window_inside_file <- (file_date_start <= year_start) & (file_date_end >= year_end)
+    # Does the window intersect the start of the file?
+    left <- (year_start <= file_date_start) & (file_date_start <= year_end)
+    # Does the window intersect the end of the file?
+    right <- (year_start <= file_date_end) & (file_date_end <= year_end)
+    # Does the window partially contain the file?
+    file_touches_window <- left | right
+
+
+
     i$version <- result$version  # CMIP5 seems to have a different version in the file thing?
     file <- file.path(result_dir(i), i$title)
     message(glue::glue(tr_("Downloading {i$title}...")))
     checksum_file <- paste0(file, ".chksum")
     checksum_type  <- tolower(i$checksum_type[[1]])
+
+    if (!any(file_touches_window, file_inside_window, window_inside_file)) {
+      message(tr_("Skipping (file is not within specified dates.)"))
+      return(file)
+    }
 
     if (file.exists(file)) {
       if (file.exists(checksum_file)) {
@@ -143,7 +172,7 @@ cmip_download_one <- function(result,
                file.path(dir, "model.info"),)
   }
 
-  files
+  return(files)
 }
 
 
