@@ -2,8 +2,8 @@
 #'
 #' @param results A list of search results from [cmip_search()].
 #' @param root Root folder to download and organise the data.
-#' @param year_start Restrict the download of model output with files that include at least some data after this year. Defaults to 1850 to include all possible files
-#' @param year_end Restrict the download of model output with files that include at least some data before this year. Defaults to 2300 to include all possible files
+#' @param year_start Restrict the download of model output with files that include at least some data after this year. Defaults to -Inf to include all possible files
+#' @param year_end Restrict the download of model output with files that include at least some data before this year. Defaults to Inf to include all possible files
 #' @param user,comment Optional strings to use when saving the log for each file.
 #' @param ... Ignored
 #'
@@ -11,7 +11,7 @@
 #' A list of files.
 #'
 #' @export
-cmip_download <- function(results, root = cmip_root_get(), year_start = 1850, year_end = 2300, user = Sys.info()[["user"]], comment = NULL, ...) {
+cmip_download <- function(results, root = cmip_root_get(), year_start = -Inf, year_end = Inf, user = Sys.info()[["user"]], comment = NULL, ...) {
 
   if(year_start > year_end) {
     stop("The start date can not be after the end date")
