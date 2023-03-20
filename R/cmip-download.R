@@ -2,8 +2,7 @@
 #'
 #' @param results A list of search results from [cmip_search()].
 #' @param root Root folder to download and organise the data.
-#' @param year_start Restrict the download of model output with files that include at least some data after this year. Defaults to -Inf to include all possible files
-#' @param year_end Restrict the download of model output with files that include at least some data before this year. Defaults to Inf to include all possible files
+#' @param year_range A n integer vector of length 2, indicating the start and end range of years. Restricts the download of model output with files that include some data within this range of years. Defaults to c(-Inf, Inf) to include all possible files
 #' @param user,comment Optional strings to use when saving the log for each file.
 #' @param ... Ignored
 #'
@@ -11,9 +10,9 @@
 #' A list of files.
 #'
 #' @export
-cmip_download <- function(results, root = cmip_root_get(), year_start = -Inf, year_end = Inf, user = Sys.info()[["user"]], comment = NULL, ...) {
+cmip_download <- function(results, root = cmip_root_get(), year_range = c(-Inf, Inf), user = Sys.info()[["user"]], comment = NULL, ...) {
 
-  if(year_start > year_end) {
+  if(year_range[1] > year_range[2]) {
     stop("The start date can not be after the end date")
   }
 
@@ -29,7 +28,7 @@ cmip_download <- function(results, root = cmip_root_get(), year_start = -Inf, ye
   }
 
   files <- lapply(seq_len(nrow(results)), function(i) {
-    cmip_download_one(results[i, ], year_start = year_start, year_end = year_end, root = root, user = user, comment = comment, ...)
+    cmip_download_one(results[i, ], year_range = year_range, root = root, user = user, comment = comment, ...)
   })
 
   downloaded <- vapply(files, function(x) all(!is.na(x)), logical(1))
@@ -56,7 +55,7 @@ instance_query <- function(x) {
   paste0(start, x, "\"))")
 }
 
-cmip_download_one <- function(result, root = cmip_root_get(), year_start, year_end, user = Sys.info()[["user"]], comment = NULL, ...) {
+cmip_download_one <- function(result, root = cmip_root_get(), year_range = year_range, user = Sys.info()[["user"]], comment = NULL, ...) {
   dir <- result_dir(result, root = root)
 
   use_https <- list(...)[["use_https"]]
@@ -85,13 +84,13 @@ cmip_download_one <- function(result, root = cmip_root_get(), year_start, year_e
     # Get the intersections of windows specified by user and dates contained in the file
     # These statements could be nested, but are not too expensive anyway
     # Is the file fully inside the window?
-    file_inside_window <- (year_start <= file_date_start) & (file_date_end <= year_end)
+    file_inside_window <- (year_range[1] <= file_date_start) & (file_date_end <= year_range[2])
     # Is the window specified by the user within the file?
-    window_inside_file <- (file_date_start <= year_start) & (file_date_end >= year_end)
+    window_inside_file <- (file_date_start <= year_range[1]) & (file_date_end >= year_range[2])
     # Does the window intersect the start of the file?
-    left <- (year_start <= file_date_start) & (file_date_start <= year_end)
+    left <- (year_range[1] <= file_date_start) & (file_date_start <= year_range[2])
     # Does the window intersect the end of the file?
-    right <- (year_start <= file_date_end) & (file_date_end <= year_end)
+    right <- (year_range[1] <= file_date_end) & (file_date_end <= year_range[2])
     # Does the window partially contain the file?
     file_touches_window <- left | right
 
