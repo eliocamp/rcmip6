@@ -2,7 +2,7 @@
 #'
 #' @param results A list of search results from [cmip_search()].
 #' @param root Root folder to download and organise the data.
-#' @param year_range A n integer vector of length 2, indicating the start and end range of years. Restricts the download of model output with files that include some data within this range of years. Defaults to c(-Inf, Inf) to include all possible files
+#' @param year_range An integer vector of length 2, indicating the start and end range of years. Restricts the download of model output with files that include some data within this range of years. Defaults to c(-Inf, Inf) to include all possible files
 #' @param user,comment Optional strings to use when saving the log for each file.
 #' @param ... Ignored
 #'
