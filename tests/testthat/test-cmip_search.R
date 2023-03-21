@@ -97,3 +97,34 @@ test_that("cmip_available() works", {
 })
 
 
+########
+query <- list(
+  type          = "Dataset",
+  replica       = "true", # esg-dn2.nsc.liu.se Is down... again
+  latest        = "true",
+  variable_id   = "tos",
+  project       = "CMIP6",
+  grid_label    = "gn",
+  frequency     = "day",
+  table_id      = "Oday",
+  experiment_id = "historical",
+  member_id     = "r1i1p1f1",
+  source_id     = "EC-Earth3" # This one has one file per year, ideal to test the range function
+)
+
+results <- cmip_search(query) %>%
+  head(1)
+
+test_that("year_range argument in cmip_download works", {
+  expect_error(cmip_root_set(root), NA)
+  expect_equal(cmip_root_get(), root)
+
+  expect_error(files <- cmip_download(results, year_range = c(1993, 1992)))
+  suppressMessages(expect_type(files <- cmip_download(results, year_range = c(1993, 1994)), "list"))
+
+  expect_length(files, 1)
+  expect_type(files[[1]], "character")
+
+  expect_false(all(file.exists(unlist(files))))
+  expect_equal(sum(file.exists(unlist(files))), 2)
+})
