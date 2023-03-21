@@ -10,7 +10,7 @@
 #' A list of files.
 #'
 #' @export
-cmip_download <- function(results, root = cmip_root_get(), year_range = c(-Inf, Inf), user = Sys.info()[["user"]], comment = NULL, ...) {
+cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL, year_range = c(-Inf, Inf), ...) {
 
   if(year_range[1] > year_range[2]) {
     stop("The start date can not be after the end date")
