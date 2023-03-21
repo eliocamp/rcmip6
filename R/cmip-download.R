@@ -28,7 +28,7 @@ cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["u
   }
 
   files <- lapply(seq_len(nrow(results)), function(i) {
-    cmip_download_one(results[i, ], year_range = year_range, root = root, user = user, comment = comment, ...)
+    cmip_download_one(results[i, ], root = root, user = user, comment = comment,  year_range = year_range, ...)
   })
 
   downloaded <- vapply(files, function(x) all(!is.na(x)), logical(1))
