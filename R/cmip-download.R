@@ -55,7 +55,7 @@ instance_query <- function(x) {
   paste0(start, x, "\"))")
 }
 
-cmip_download_one <- function(result, root = cmip_root_get(), year_range = year_range, user = Sys.info()[["user"]], comment = NULL, ...) {
+cmip_download_one <- function(result, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL,  year_range = year_range, ...) {
   dir <- result_dir(result, root = root)
 
   use_https <- list(...)[["use_https"]]
