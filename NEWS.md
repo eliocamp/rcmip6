@@ -9,6 +9,7 @@
 -   `cmip_search()` now turns most columns into vector columns instead of list columns.
 -   `cmip_search()` accepts a character vector query. It will be interpreted as a list of instances.
 -   `cmip_download()` will only write instance information if at least one file was downloaded successfully and it will include a `complete` column which records if all files assoiated with an instance were downloaded successfully.
+-   `cmip_download()` gains a `year_range` argument to only download files corresponding to a specific range of years. A fair number of models split their data into several files by year, decade, 50 year intervals, etc.... With this argument you can download only the files that have the data you're interested in. (#7 and #8. Thanks @jcvdav)
 
 ## Breaking changes
 
