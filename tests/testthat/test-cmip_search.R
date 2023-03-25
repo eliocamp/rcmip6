@@ -96,6 +96,14 @@ test_that("cmip_available() works", {
                available[order(id)])
 })
 
+test_that("Failed instances give proper message", {
+  failed <- results[["instance_id"]][1:2]
+  expect_error(failed_query <- instance_query(failed), NA)
+  expect_s3_class(failed_results <- eval(parse(text = failed_query)), "data.table")
+  expect_true(nrow(failed_results) > 0)
+})
+
+
 
 ########
 query <- list(
