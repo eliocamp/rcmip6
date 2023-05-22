@@ -19,6 +19,10 @@ test_that("Search returns results", {
   expect_true(nrow(results) > 0)
 })
 
+test_that("URLs obtained from search results",  {
+            expect_silent(urls <- cmip_urls(results[58:63]))
+    expect_true(all(grepl("^http.*nc$", urls)))
+})
 
 test_that("URL to list works", {
   # I don't test that query == cmip_url_to_list(query_url) because
