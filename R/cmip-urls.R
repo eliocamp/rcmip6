@@ -1,14 +1,19 @@
 #' Obtain file server URLs of CMIP data
 #'
-#' Finds the URLs that [cmip_download] would obtain from a search results object.
+#' Finds the URLs that [cmip_download] would obtain from a search results
+#' object.
 #'
 #' If a valid URL is not found the return value has an `NA` in its place.
 #'
-#' Note that the versions to download have "/fileServer/" in the path, whereas those for the remote
-#' access have "/dodsC/" instead (and can be string-substituted).  This works for some sources we
-#' have seen (GDAL for example can within limitations read remotely from the 'fileServer' URLs, but the
-#' NetCDF library needs the 'dodsC' version, again this a pattern observed on some sources not an authorative
-#' claim).
+#' Note that the versions to download have "/fileServer/" in the path, whereas
+#' those for the remote access have "/dodsC/" instead (and can be
+#' string-substituted).  This works for some sources we have seen (GDAL for
+#' example can within limitations read remotely from the 'fileServer' URLs, but
+#' the NetCDF library needs the 'dodsC' version, again this a pattern observed
+#' on some sources not an authorative claim).
+#'
+#' It takes some time to process and find these so they aren't automatically
+#' added to the results from a search.
 #'
 #' @inheritParams cmip_download
 #'
@@ -37,8 +42,9 @@ cmip_urls <- function(results) {
       next;
     }
     ## FIXME/MDSumner bit worried here about what the structure could be in here (can there be multiple?)
-    tx <- grep("HTTPServer", unlist(info[[1]]$url), value = TRUE)
-    vec[i] <- substr(tx, 1, gregexpr("\\.nc", tx)[[1]][1] + 2)
+    #tx <- grep("HTTPServer", unlist(info[[1]]$url), value = TRUE)
+    #vec[i] <- substr(tx, 1, gregexpr("\\.nc", tx)[[1]][1] + 2)
+    vec[i] <-  strsplit(info[[1L]]$url[[1L]], "\\|")[[1L]][1L]
   }
 
   vec
