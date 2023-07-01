@@ -85,3 +85,12 @@ This structure can be parsed with `cmip_available()`
 cmip_available()
 ```
 
+We can obtain the urls that *would* be downloaded.  
+
+Note that these are the *file server* URLs, in at lease some cases we can substitute "/fileServer/" with "/dodsC/" for the OpenDAP server URLs, which will work remotely with the NetCDF API. 
+
+```{r urls}
+urls <- cmip_urls(results)
+str(urls)
+basename(urls[1:3])
+```

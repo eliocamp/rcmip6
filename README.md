@@ -163,8 +163,24 @@ cmip_available()
 #> 1: http://cera-www.dkrz.de/WDCC/meta/CMIP6/CMIP6.CMIP.CCCma.CanESM5.historical.r10i1p2f1.Amon.tas.gn.v20190429.json|Citation|citation,http://hdl.handle.net/hdl:21.14100/5acc469d-b400-3c06-b1de-3f4142d90fc9|PID|pid
 #>       _version_ retracted               _timestamp score branch_method
 #> 1: 1.637114e+18     FALSE 2019-06-23T06:59:01.531Z     1            NA
-#>    short_description
-#> 1:                NA
+#>    short_description complete_download
+#> 1:                NA              TRUE
 #>                                                                                                                                                                                                                                                                                             files
 #> 1: readme_example/CMIP6/CMIP/CCCma/CanESM5/historical/r10i1p2f1/Amon/tas/gn/20190429/tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc,readme_example/CMIP6/CMIP/CCCma/CanESM5/historical/r10i1p2f1/Amon/tas/gn/20190429/tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc.chksum
+```
+
+We can obtain the urls that *would* be downloaded.
+
+Note that these are the *file server* URLs, in at lease some cases we
+can substute “/fileServer/” with “/dodsC/” for the OpenDAP server URLs,
+which will work remotely with the NetCDF API.
+
+``` r
+urls <- cmip_urls(results)
+str(urls)
+#>  chr [1:65] "http://crd-esgf-drc.ec.gc.ca/thredds/fileServer/esgC_dataroot/AR6/CMIP6/CMIP/CCCma/CanESM5/historical/r10i1p2f1"| __truncated__ ...
+basename(urls[1:3])
+#> [1] "tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc"
+#> [2] "tas_Amon_CanESM5_historical_r7i1p2f1_gn_185001-201412.nc" 
+#> [3] "tas_Amon_CanESM5_historical_r8i1p2f1_gn_185001-201412.nc"
 ```
