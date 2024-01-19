@@ -20,8 +20,8 @@ test_that("Search returns results", {
 })
 
 test_that("URLs obtained from search results",  {
-            expect_silent(urls <- cmip_urls(results[58:63]))
-    expect_true(all(grepl("^http.*nc$", urls)))
+  expect_silent(urls <- cmip_urls(results[58:63]))
+  expect_true(all(grepl("^http.*nc$", urls)))
 })
 
 test_that("URL to list works", {

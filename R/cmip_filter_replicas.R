@@ -19,47 +19,13 @@ cmip_filter_replicas <- function(results) {
   results
 }
 
-# From epwshiftr
+
 get_data_node <- function (timeout = 3) {
-  # read html page
-  f <- tempfile()
-  utils::download.file("https://esgf-node.llnl.gov/status/", f, "libcurl", quiet = TRUE)
-  l <- readLines(f)
+  data <- jsonlite::read_json("https://aims2.llnl.gov/metagrid-backend/proxy/status")$data$result
 
-  # locate table
-  l_s <- grep("<!--load block main-->", l, fixed = TRUE)
-
-  if (!length(l_s)) stop("Internal Error: Failed to read data node table")
-
-  l <- l[l_s:length(l)]
-  l_s <- grep("<table>", l, fixed = TRUE)[1L]
-  l_e <- grep("</table>", l, fixed = TRUE)[1L]
-
-  if (!length(l_s) || !length(l_e)) stop("Internal Error: Failed to read data node table")
-
-  l <- l[l_s:l_e]
-
-  # extract nodes
-  loc <- regexec("\\t<td>(.+)</td>", l)
-  nodes <- vapply(seq_along(l), function (i) {
-    if (all(loc[[i]][1] == -1L)) return(NA_character_)
-    substr(l[i], loc[[i]][2], loc[[i]][2] + attr(loc[[i]], "match.length")[2] - 1L)
-  }, NA_character_)
-  nodes <- nodes[!is.na(nodes)]
-
-  # extract status
-  loc <- regexec('\\t\\t<font color="#\\S{6}"><b>(UP|DOWN)</b>', l)
-  status <- vapply(seq_along(l), function (i) {
-    if (all(loc[[i]][1] == -1L)) return(NA_character_)
-    substr(l[i], loc[[i]][2], loc[[i]][2] + attr(loc[[i]], "match.length")[2] - 1L)
-  }, NA_character_)
-  status <- status[!is.na(status)]
-
-
-  if (length(nodes) != length(status)) stop("Internal Error: Failed to read data node table")
-
-  res <- data.table::data.table(data_node = nodes, online = status == "UP")
-
-  res
-
+  data <- lapply(data, function(x) {
+    data.table::data.table(data_node = x$metric$instance,
+                           online = x$value[[2]] == 1)
+  })
+  data.table::rbindlist(data)
 }

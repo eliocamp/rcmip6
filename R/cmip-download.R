@@ -11,7 +11,6 @@
 #'
 #' @export
 cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL, year_range = c(-Inf, Inf), ...) {
-
   if(year_range[1] > year_range[2]) {
     stop(tr_("The start year cannot be greater than the end year"))
   }
@@ -57,24 +56,13 @@ instance_query <- function(x) {
 
 cmip_download_one <- function(result, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL,  year_range = year_range, ...) {
   dir <- result_dir(result, root = root)
-
   use_https <- list(...)[["use_https"]]
   # Some results have multiple folders? (CMIP5, seems like)
   sink <- lapply(dir, dir.create,  showWarnings = FALSE, recursive = TRUE)
+  info <- get_result_info(result)
 
-  url <- paste0("https://", result$index_node, "/search_files/", result$id, "/", result$index_node, "/?limit=999")
-
-  info <- httr::RETRY("GET", url = url)
-  httr::warn_for_status(info)
-
-  if (httr::http_error(info)) {
-    return(NA_character_)
-  }
-
-  info <- httr::content(info)$response$docs
-
-  files <-  vapply(info, function(i) {
-    url <- strsplit(i$url[[1]], "\\|")[[1]][1]
+  files <-  vapply(seq(1, nrow(info)), function(i) {
+    url <- strsplit(info[i, ]$url[[1]], "\\|")[[1]][1]
 
     # Get the dates covered by the file
     file_date_range <- strsplit(url, "gn\\_|gr\\_")[[1]][2]
@@ -96,11 +84,11 @@ cmip_download_one <- function(result, root = cmip_root_get(), user = Sys.info()[
 
 
 
-    i$version <- result$version  # CMIP5 seems to have a different version in the file thing?
-    file <- file.path(result_dir(i), i$title)
-    message(glue::glue(tr_("Downloading {i$title}...")))
+    info[i, ]$version <- result$version  # CMIP5 seems to have a different version in the file thing?
+    file <- file.path(result_dir(info[i, ]), info[i, ]$title)
+    message(glue::glue(tr_("Downloading {info[i, ]$title}...")))
     checksum_file <- paste0(file, ".chksum")
-    checksum_type  <- tolower(i$checksum_type[[1]])
+    checksum_type  <- tolower(info[i, ]$checksum_type[[1]])
 
     if (!any(file_touches_window, file_inside_window, window_inside_file)) {
       message(tr_("Skipping (file is not within specified dates.)"))
@@ -115,7 +103,7 @@ cmip_download_one <- function(result, root = cmip_root_get(), user = Sys.info()[
         writeLines(text = local_checksum, con = checksum_file)
       }
 
-      checksum <- i$checksum[[1]]
+      checksum <- info[i, ]$checksum[[1]]
 
       if (local_checksum == checksum) {
         message(tr_("Skipping (matching checksum)."))
@@ -155,7 +143,7 @@ cmip_download_one <- function(result, root = cmip_root_get(), user = Sys.info()[
     writeLines(text = local_checksum, con = checksum_file)
 
     log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
-    writeLines(c(log, comment), file.path(result_dir(i), paste0(tools::file_path_sans_ext(i$title), ".log")))
+    writeLines(c(log, comment), file.path(result_dir(info[i, ]), paste0(tools::file_path_sans_ext(info[i, ]$title), ".log")))
     file
   }, character(1))
 
