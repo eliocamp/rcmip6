@@ -64,45 +64,47 @@ cmip_download_one <- function(result, root = cmip_root_get(), user = Sys.info()[
   files <-  vapply(seq(1, nrow(info)), function(i) {
     url <- strsplit(info[i, ]$url[[1]], "\\|")[[1]][1]
 
-    # The date is in a format of 6 digits separated by a dash or underscore
-    # Capture the first four digits of each group of digits.
-    date_range_regex <- "(\\d{4})\\d{2}[-_](\\d{4})\\d{2}"
-    dates <- utils::strcapture(date_range_regex, info[i, ]$title,
-                               proto = list(file_date_start = integer(),
-                                            file_date_end = integer()))
-    file_date_start <- dates$file_date_start
-    file_date_end <- dates$file_date_end
-
-    if (any(is.na(c(file_date_start, file_date_end)))) {
-      warning(tr_("Failed to parse dates. Downloading anyway."))
-    } else {
-
-      # Get the intersections of windows specified by user and dates contained in the file
-      # These statements could be nested, but are not too expensive anyway
-      # Is the file fully inside the window?
-      file_inside_window <- (year_range[1] <= file_date_start) & (file_date_end <= year_range[2])
-      # Is the window specified by the user within the file?
-      window_inside_file <- (file_date_start <= year_range[1]) & (file_date_end >= year_range[2])
-      # Does the window intersect the start of the file?
-      left <- (year_range[1] <= file_date_start) & (file_date_start <= year_range[2])
-      # Does the window intersect the end of the file?
-      right <- (year_range[1] <= file_date_end) & (file_date_end <= year_range[2])
-      # Does the window partially contain the file?
-      file_touches_window <- left | right
-
-      if (!any(file_touches_window, file_inside_window, window_inside_file)) {
-        message(tr_("Not downloading (file is not within specified dates.)"))
-        return(NA_character_)
-      }
-    }
-
-
-
     info[i, ]$version <- result$version  # CMIP5 seems to have a different version in the file thing?
     file <- file.path(result_dir(info[i, ]), info[i, ]$title)
     message(glue::glue(tr_("Downloading {info[i, ]$title}...")))
     checksum_file <- paste0(file, ".chksum")
     checksum_type  <- tolower(info[i, ]$checksum_type[[1]])
+
+    if (all(is.finite(c(year_range)))) {
+      # The date is in a format of 6 digits separated by a dash or underscore
+      # Capture the first four digits of each group of digits.
+      date_range_regex <- "(\\d{4})\\d{2}[-_](\\d{4})\\d{2}"
+      dates <- utils::strcapture(date_range_regex, info[i, ]$title,
+                                 proto = list(file_date_start = integer(),
+                                              file_date_end = integer()))
+      file_date_start <- dates$file_date_start
+      file_date_end <- dates$file_date_end
+
+      if (any(is.na(c(file_date_start, file_date_end)))) {
+        warning(tr_("Failed to parse dates. Downloading anyway."))
+      } else {
+
+        # Get the intersections of windows specified by user and dates contained in the file
+        # These statements could be nested, but are not too expensive anyway
+        # Is the file fully inside the window?
+        file_inside_window <- (year_range[1] <= file_date_start) & (file_date_end <= year_range[2])
+        # Is the window specified by the user within the file?
+        window_inside_file <- (file_date_start <= year_range[1]) & (file_date_end >= year_range[2])
+        # Does the window intersect the start of the file?
+        left <- (year_range[1] <= file_date_start) & (file_date_start <= year_range[2])
+        # Does the window intersect the end of the file?
+        right <- (year_range[1] <= file_date_end) & (file_date_end <= year_range[2])
+        # Does the window partially contain the file?
+        file_touches_window <- left | right
+
+        if (!any(file_touches_window, file_inside_window, window_inside_file)) {
+          message(tr_("Not downloading (file is not within specified dates.)"))
+          return(file)
+        }
+      }
+    }
+
+
 
 
     if (file.exists(file)) {
