@@ -15,7 +15,8 @@ Imports:
     jsonlite,
     httr,
     digest,
-    data.table
+    data.table,
+    curl
 Suggests: 
     rstudioapi,
     knitr,

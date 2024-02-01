@@ -26,22 +26,60 @@ cmip_download <- function(results, root = cmip_root_get(), user = Sys.info()[["u
     results <- cmip_unsimplify(results)
   }
 
-  files <- lapply(seq_len(nrow(results)), function(i) {
-    cmip_download_one(results[i, ], root = root, user = user, comment = comment,  year_range = year_range, ...)
+  # Request metadata and check download necesity
+  results <- cmip_add_needs_download(results, root = root, year_range = year_range)
+
+  # Should download?
+  needs_download <- unlist(lapply(seq_len(nrow(results)), function(i) unlist(results[i, ]$info[[1]]$needs_download)))
+
+  # Get all URLS
+  urls <- lapply(seq_len(nrow(results)), function(i) urls_from_info(results[i, ]$info[[1]]))
+  urls <- unlist(urls)[needs_download]
+
+  # Get all filenames
+  files <- lapply(seq_len(nrow(results)), function(i) file_from_info(results[i, ]$info[[1]]))
+  files <- unlist(files)[needs_download]
+
+  checksums <- unlist(lapply(seq_len(nrow(results)), function(i) unlist(results[i, ]$info[[1]]$checksum)))[needs_download]
+  checksum_types <- unlist(lapply(seq_len(nrow(results)), function(i) unlist(results[i, ]$info[[1]]$checksum_type)))[needs_download]
+  checksum_files <- paste0(files, ".chksum")
+
+  # Create all folders
+  sink <- vapply(dirname(files), dir.create, FUN.VALUE = numeric(1), recursive = TRUE, showWarnings = FALSE)
+
+  # Download all the stuff
+  downloaded <- curl::multi_download(urls, files)
+
+  # This creates all the checksums
+  sink <- lapply(seq_along(files), function(i) {
+    local_checksum <- digest::digest(file = files[i], algo = tolower(checksum_types[i]))
+    writeLines(text = local_checksum, con = checksum_files[i])
+    return(0)
   })
 
-  downloaded <- vapply(files, function(x) all(!is.na(x)), logical(1))
+  # Write the model.info thing
+  for (i in seq_len(nrow(results))) {
+    these_files <- file_from_info(results[i, ]$info[[1]], root = root)
+    they_exist <- file.exists(these_files)
+    results[i, ]$info[[1]] <- results[i, ]$info[[1]][they_exist, ]
 
-  # Some instances can fail in one replica but not others,
-  # so we have to list all instances and remove the
-  all_instances <- results[["instance_id"]]
-  downloaded_instances <- all_instances[downloaded]
-  failed_instances <- setdiff(all_instances, downloaded_instances)
-
-  if (length(failed_instances) != 0) {
-    warning("Failed to download some instances, query them with,\n", instance_query(failed_instances))
+    writeLines(jsonlite::serializeJSON(results[i, ], pretty = TRUE),
+               file.path(dirname(these_files)[1], "model.info"))
   }
-  return(invisible(files))
+
+
+  # TODO: I can't do this with the new refactor.
+  # # Some instances can fail in one replica but not others,
+  # # so we have to list all instances and remove the
+  # all_instances <- results[["instance_id"]]
+  # downloaded_instances <- all_instances[downloaded]
+  # failed_instances <- setdiff(all_instances, downloaded_instances)
+  #
+  # if (length(failed_instances) != 0) {
+  #   warning("Failed to download some instances, query them with,\n", instance_query(failed_instances))
+  # }
+  # return(invisible(files))
+  return(downloaded)
 
 }
 
@@ -54,136 +92,15 @@ instance_query <- function(x) {
   paste0(start, x, "\"))")
 }
 
-cmip_download_one <- function(result, root = cmip_root_get(), user = Sys.info()[["user"]], comment = NULL,  year_range = year_range, ...) {
-  dir <- result_dir(result, root = root)
-  use_https <- list(...)[["use_https"]]
-  # Some results have multiple folders? (CMIP5, seems like)
-  sink <- lapply(dir, dir.create,  showWarnings = FALSE, recursive = TRUE)
-  info <- get_result_info(result)
+result_dir <- function(info, root = cmip_root_get()) {
 
-  files <-  vapply(seq(1, nrow(info)), function(i) {
-    url <- strsplit(info[i, ]$url[[1]], "\\|")[[1]][1]
-
-    info[i, ]$version <- result$version  # CMIP5 seems to have a different version in the file thing?
-    file <- file.path(result_dir(info[i, ]), info[i, ]$title)
-    message(glue::glue(tr_("Downloading {info[i, ]$title}...")))
-    checksum_file <- paste0(file, ".chksum")
-    checksum_type  <- tolower(info[i, ]$checksum_type[[1]])
-
-    if (all(is.finite(c(year_range)))) {
-      # The date is in a format of 6 digits separated by a dash or underscore
-      # Capture the first four digits of each group of digits.
-      date_range_regex <- "(\\d{4})\\d{2}[-_](\\d{4})\\d{2}"
-      dates <- utils::strcapture(date_range_regex, info[i, ]$title,
-                                 proto = list(file_date_start = integer(),
-                                              file_date_end = integer()))
-      file_date_start <- dates$file_date_start
-      file_date_end <- dates$file_date_end
-
-      if (any(is.na(c(file_date_start, file_date_end)))) {
-        warning(tr_("Failed to parse dates. Downloading anyway."))
-      } else {
-
-        # Get the intersections of windows specified by user and dates contained in the file
-        # These statements could be nested, but are not too expensive anyway
-        # Is the file fully inside the window?
-        file_inside_window <- (year_range[1] <= file_date_start) & (file_date_end <= year_range[2])
-        # Is the window specified by the user within the file?
-        window_inside_file <- (file_date_start <= year_range[1]) & (file_date_end >= year_range[2])
-        # Does the window intersect the start of the file?
-        left <- (year_range[1] <= file_date_start) & (file_date_start <= year_range[2])
-        # Does the window intersect the end of the file?
-        right <- (year_range[1] <= file_date_end) & (file_date_end <= year_range[2])
-        # Does the window partially contain the file?
-        file_touches_window <- left | right
-
-        if (!any(file_touches_window, file_inside_window, window_inside_file)) {
-          message(tr_("Not downloading (file is not within specified dates.)"))
-          return(file)
-        }
-      }
-    }
-
-
-
-
-    if (file.exists(file)) {
-      if (file.exists(checksum_file)) {
-        local_checksum <- readLines(checksum_file)
-      } else {
-        local_checksum <- digest::digest(file = file, algo = checksum_type)
-        writeLines(text = local_checksum, con = checksum_file)
-      }
-
-      checksum <- info[i, ]$checksum[[1]]
-
-      if (local_checksum == checksum) {
-        message(tr_("Skipping (matching checksum)."))
-        return(file)
-      }
-    }
-
-    # Workaround para evitar el proxy de mierda de la UBA
-    if (isTRUE(use_https)) {
-      url <- gsub("http:", "https:", url)
-    }
-
-    message(glue::glue(tr_("Downloading from {url}")))
-    response <- try(httr::RETRY("GET", url = url,
-                                times = 3,
-                                httr::write_disk(file, overwrite = TRUE),
-                                httr::progress()))
-
-    # RETRY will raise a stop() if the last try is a curl error
-    # so we need to capture it.
-    if (inherits(response, "try-error"))  {
-      warning(response)
-      unlink(file)
-      return(NA_character_)
-    }
-
-    # Trap http errors
-    if (httr::http_error(response)) {
-      httr::warn_for_status(response, task = NULL)
-      unlink(file)
-      return(NA_character_)
-    }
-
-    # Compute and save checksum. Perhaps we need to also check if it's correct, but
-    # what should we do if it's not?
-    local_checksum <- digest::digest(file = file, algo = checksum_type)
-    writeLines(text = local_checksum, con = checksum_file)
-
-    log <- paste(as.character(as.POSIXlt(Sys.time(), tz = "UTC")), "-", user)
-    writeLines(c(log, comment), file.path(result_dir(info[i, ]), paste0(tools::file_path_sans_ext(info[i, ]$title), ".log")))
-    file
-  }, character(1))
-
-
-  if (any(is.na(files))) {
-    result[["complete_download"]] <- FALSE
-  } else {
-    result[["complete_download"]] <- TRUE
-  }
-
-  if (any(!is.na(files))) {
-    writeLines(jsonlite::serializeJSON(result, pretty = TRUE),
-               file.path(dir, "model.info"),)
-  }
-
-  return(files)
-}
-
-
-result_dir <- function(result, root = cmip_root_get()) {
-
-  template <- result[["directory_format_template_"]][[1]]
+  template <- info$directory_format_template_[[1]]
   if (is.null(template)) {
     # This is CMIP5
     template <- cmip5_folder_template
   }
 
-  dir <- glue::glue_data(result,
+  dir <- glue::glue_data(info,
                          template,
                          .open = "%(",
                          .close = ")s"
@@ -191,6 +108,7 @@ result_dir <- function(result, root = cmip_root_get()) {
 
   dir
 }
+
 
 
 #' Computes the total size of a search result in Mb.

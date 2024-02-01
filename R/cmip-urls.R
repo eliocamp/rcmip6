@@ -20,35 +20,26 @@
 #' @return character vector of URLs
 #' @export
 cmip_urls <- function(results) {
-
-  ## FIXME/MDSumner
-  ## 2. I'm not clear about the http vs https thing, seems to obtain a mix
-  ## 3. Can this be way faster?
-  op <- options(timeout = 360)
-  on.exit(options(op), add = TRUE)
-  vec <- rep(NA_character_, dim(results)[1L])
-  for (i in seq(1, nrow(results))) {
-    info <- get_result_info(results[i, ])
-    ## FIXME/MDSumner bit worried here about what the structure could be in here (can there be multiple?)
-    #tx <- grep("HTTPServer", unlist(info[[1]]$url), value = TRUE)
-    #vec[i] <- substr(tx, 1, gregexpr("\\.nc", tx)[[1]][1] + 2)
-    vec[i] <-  strsplit(info[1, ]$url[[1]][1], "\\|")[[1L]][1L]
-  }
-
-  vec
+  infos <- get_results_info(results)
+  lapply(infos, urls_from_info)
 }
 
 
-get_result_info <- function(result) {
-  url <- paste0("https://", result$index_node, "/metagrid-backend/proxy/search?dataset_id=", URLencode(result$id),
-                "&format=application%2Fsolr%2Bjson&limit=9999&offset=0&type=File&")
-  info <- httr::RETRY("GET", url = url)
-  httr::warn_for_status(info)
+get_results_info <- function(results) {
+  urls <- paste0("https://aims2.llnl.gov/metagrid-backend/proxy/search?dataset_id=", URLencode(results$id),
+                 "&format=application%2Fsolr%2Bjson&limit=9999&offset=0&type=File&")
 
-  if (httr::http_error(info)) {
-    return(NA_character_)
-  }
+  files <- file.path(tempdir(), make.unique(results$title))
 
-  info <- jsonlite::fromJSON(httr::content(info, as = "text"))$response$docs
-  info
+  res <- curl::multi_download(urls = urls, destfiles = files)
+  lapply(res$destfile, function(file) jsonlite::fromJSON(readLines(file))$response$docs)
+}
+
+
+urls_from_info <- function(info) {
+  vapply(info$url, function(x) strsplit(x[1], "\\|")[[1]][1], character(1))
+}
+
+file_from_info <- function(info, root = cmip_root_get()) {
+  file.path(result_dir(info, root = root), info$title)
 }

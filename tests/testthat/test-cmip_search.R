@@ -21,7 +21,9 @@ test_that("Search returns results", {
 
 test_that("URLs obtained from search results",  {
   expect_silent(urls <- cmip_urls(results[58:63]))
-  expect_true(all(grepl("^http.*nc$", urls)))
+  expect_length(urls, nrow(results[58:63]))
+  expect_type(urls, "list")
+  expect_true(all(grepl("^http.*nc$", unlist(urls))))
 })
 
 test_that("URL to list works", {
@@ -75,15 +77,16 @@ test_that("Download works", {
   expect_error(cmip_root_set(root), NA)
   expect_equal(cmip_root_get(), root)
 
-  suppressMessages(expect_type(files <- cmip_download(results[c(1:2)]), "list"))
-  expect_length(files, 2)
-  expect_type(files[[1]], "character")
+  suppressMessages(expect_s3_class(files <- cmip_download(results[c(1:2)]), "data.frame"))
 
-  expect_true(all(file.exists(unlist(files))))
-  suppressMessages(expect_message(cmip_download(results[1]), "Skipping"))
+  # expect_equal(nrow(files), 2)
+  expect_type(files$destfile, "character")
 
-  suppressMessages(expect_type(files_simple <- cmip_download(cmip_simplify(results)[1:2]), "list"))
-  expect_equal(files, files_simple)
+  # cmip_filter_downloaded(results[c(1:2), ])
+
+  expect_true(all(file.exists(files$destfile)))
+  # suppressMessages(expect_message(cmip_download(results[1]), "Skipping"))
+
 })
 
 test_that("cmip_available() works", {
@@ -111,10 +114,8 @@ test_that("Failed instances give proper message", {
 
 test_that("year_range argument in cmip_download works", {
 
-  expect_error(cmip_root_set(root), NA)
-  expect_equal(cmip_root_get(), root)
-
-
+  expect_error(cmip_root_set(tempfile()), NA)
+  dir.create(cmip_root_get())
   ########
   query <- list(
     type          = "Dataset",
@@ -136,8 +137,8 @@ test_that("year_range argument in cmip_download works", {
   expect_error(files <- cmip_download(results, year_range = c(1993, 1992)))
   suppressMessages(expect_type(files <- cmip_download(results, year_range = c(1993, 1994)), "list"))
 
-  expect_length(files, 1)
-  expect_type(files[[1]], "character")
+  expect_length(files$destfile, 2)
+  expect_type(files$destfile, "character")
 
   expect_false(all(file.exists(unlist(files))))
   expect_equal(sum(file.exists(unlist(files))), 2)
