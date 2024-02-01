@@ -1,4 +1,3 @@
-#' @export
 cmip_add_needs_download <- function(results, root = cmip_root_get(), year_range = c(-Inf, Inf)) {
   if (is.null(results$info)) {
     infos <- get_results_info(results)

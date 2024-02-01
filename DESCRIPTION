@@ -16,7 +16,8 @@ Imports:
     httr,
     digest,
     data.table,
-    curl
+    curl,
+    furrr
 Suggests: 
     rstudioapi,
     knitr,

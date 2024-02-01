@@ -2,7 +2,6 @@
 
 S3method(print,cmip_simple)
 S3method(print,cmip_size)
-export(cmip_add_needs_download)
 export(cmip_available)
 export(cmip_download)
 export(cmip_filter_replicas)
