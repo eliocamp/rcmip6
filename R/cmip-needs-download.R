@@ -15,10 +15,10 @@ cmip_add_needs_download <- function(results,
   return(results)
 }
 
-#' Adds to columns to the info dataframe of each request.
-#' is_requested: whether the user requested that file (currently depends only
-#' on the date range)
-#' needs_download: whether the file needs to be downloaed.
+# Adds to columns to the info dataframe of each request.
+# is_requested: whether the user requested that file (currently depends only
+# on the date range)
+# needs_download: whether the file needs to be downloaed.
 info_add_needs_download <- function(info,
                                     root = cmip_root_get(),
                                     year_range = c(-Inf, Inf)) {
@@ -28,9 +28,13 @@ info_add_needs_download <- function(info,
 
   matches_checksum <- vapply(seq_along(info$title), function(i) {
     if (overlaps[i] && exists[i]) {  # Only check if necessary.
-      return(checksum_matches(file[i],
+      matches <- checksum_matches(file[i],
                               checksum_type = tolower(info$checksum_type[[i]]),
-                              checksum = info$checksum[[i]]))
+                              checksum = info$checksum[[i]])
+      if (isTRUE(matches)) {
+        message(tr_("Skipping %s (matching checksum).", file[i]))
+        return(matches)
+      }
     } else {
       return(FALSE)
     }

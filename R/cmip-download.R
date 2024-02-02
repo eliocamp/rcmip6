@@ -34,8 +34,11 @@ cmip_download <- function(results,
     results <- cmip_unsimplify(results)
   }
 
-  message(tr_("Checking files that need download..."))
+  message(tr_("Requesting metadata..."))
   # Request metadata and check download necessity
+  results <- get_results_info(results)
+
+  message(tr("Checking for existing files..."))
   results <- cmip_add_needs_download(results, root = root,
                                      year_range = year_range)
 
