@@ -83,6 +83,9 @@ cmip_download <- function(results,
                  FUN.VALUE = numeric(1),
                  recursive = TRUE, showWarnings = FALSE)
 
+  if (sum(needs_download) != sum(is_requested)) {
+    message(tr_("Skipping, %i files already downloaded.", sum(needs_download) - sum(is_requested)))
+  }
   message(tr_("Downloading..."))
   downloaded <- multi_download_retry(urls[needs_download], files[needs_download])
 
