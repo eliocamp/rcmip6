@@ -51,11 +51,11 @@ multi_download_retry <- function(urls, destfiles, retry = 5) {
   # Not very elegant, but will have to do
   res <- curl::multi_download(urls = urls, destfiles = destfiles)
 
-  to_retry <- res[res$tries < retry & status_code != 200, ]
+  to_retry <- res[res$tries < retry & res$status_code != 200, ]
   tires <- 1
   while(tries < retry) {
     browser()
-    to_retry <- res[status_code != 200, ]
+    to_retry <- res[res$status_code != 200, ]
     res[to_retry, ] <- curl::multi_download(urls = to_retry$url, destfiles = to_retry$destfile)
     tries <- tries + 1
   }
