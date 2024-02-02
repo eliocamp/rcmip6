@@ -81,7 +81,7 @@ cmip_download <- function(results,
                  recursive = TRUE, showWarnings = FALSE)
 
   message(tr_("Downloading..."))
-  downloaded <- curl::multi_download(urls[needs_download], files[needs_download])
+  downloaded <- multi_download_retry(urls[needs_download], files[needs_download])
 
   # Create all the checksums
   sink <- lapply(seq_along(files[needs_download]), function(i) {

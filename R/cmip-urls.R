@@ -34,8 +34,7 @@ get_results_info <- function(results) {
 
   res <- multi_download_retry(urls = urls, destfiles = files)
 
-  if (any(res$status_code) != 200) {
-    browser()
+  if (any(res$status_code != 200)) {
     warning(tr_("Failed to get metadata of some results. Ignoring them"))
   }
 
@@ -54,7 +53,6 @@ multi_download_retry <- function(urls, destfiles, retry = 5) {
   to_retry <- res[res$status_code != 200, ]
   tries <- 1
   while(tries < retry & nrow(to_retry) > 0) {
-    browser()
     res[res$status_code != 200, ] <- curl::multi_download(urls = to_retry$url, destfiles = to_retry$destfile)
     to_retry <- res[res$status_code != 200, ]
     tries <- tries + 1
