@@ -32,16 +32,34 @@ get_results_info <- function(results) {
 
   files <- file.path(tempdir(), make.unique(results$title))
 
-  res <- curl::multi_download(urls = urls, destfiles = files)
+  res <- multi_download_retry(urls = urls, destfiles = files)
 
-  browser(expr = any(res$status_code != 200))
+  if (any(res$status_code) != 200) {
+    warning(tr_("Failed to get metadata of some results. Ignoring them"))
+  }
+
+  results <- results[res$status_code == 200, ]
+  res <- res[res$status_code == 200, ]
   lapply(res$destfile, function(file) {
     jsonlite::fromJSON(readLines(file))$response$docs
   })
 }
 
 
+multi_download_retry <- function(urls, destfiles, retry = 5) {
+  # Not very elegant, but will have to do
+  res <- curl::multi_download(urls = urls, destfiles = files)
 
+  to_retry <- res[res$tries < retry & status_code != 200, ]
+  tires <- 1
+  while(tries < retry) {
+    to_retry <- res[status_code != 200, ]
+    res[to_retry, ] <- curl::multi_download(urls = to_retry$url, destfiles = to_retry$destfile)
+    tries <- tries + 1
+  }
+
+  return(res)
+}
 
 urls_from_info <- function(info) {
   vapply(info$url, function(x) strsplit(x[1], "\\|")[[1]][1], character(1))
