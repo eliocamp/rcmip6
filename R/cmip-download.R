@@ -34,6 +34,7 @@ cmip_download <- function(results,
     results <- cmip_unsimplify(results)
   }
 
+  message(tr_("Checking files that need download..."))
   # Request metadata and check download necessity
   results <- cmip_add_needs_download(results, root = root,
                                      year_range = year_range)
@@ -79,7 +80,7 @@ cmip_download <- function(results,
                  FUN.VALUE = numeric(1),
                  recursive = TRUE, showWarnings = FALSE)
 
-  # Download all the stuff
+  message(tr_("Downloading..."))
   downloaded <- curl::multi_download(urls[needs_download], files[needs_download])
 
   # Create all the checksums

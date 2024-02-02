@@ -33,10 +33,14 @@ get_results_info <- function(results) {
   files <- file.path(tempdir(), make.unique(results$title))
 
   res <- curl::multi_download(urls = urls, destfiles = files)
+
+  browser(expr = any(res$status_code != 200))
   lapply(res$destfile, function(file) {
     jsonlite::fromJSON(readLines(file))$response$docs
   })
 }
+
+
 
 
 urls_from_info <- function(info) {
