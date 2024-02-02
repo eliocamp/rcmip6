@@ -26,13 +26,16 @@ cmip_urls <- function(results) {
 
 
 get_results_info <- function(results) {
-  urls <- paste0("https://aims2.llnl.gov/metagrid-backend/proxy/search?dataset_id=", utils::URLencode(results$id),
+  urls <- paste0("https://aims2.llnl.gov/metagrid-backend/proxy/search?dataset_id=",
+                 utils::URLencode(results$id),
                  "&format=application%2Fsolr%2Bjson&limit=9999&offset=0&type=File&")
 
   files <- file.path(tempdir(), make.unique(results$title))
 
   res <- curl::multi_download(urls = urls, destfiles = files)
-  lapply(res$destfile, function(file) jsonlite::fromJSON(readLines(file))$response$docs)
+  lapply(res$destfile, function(file) {
+    jsonlite::fromJSON(readLines(file))$response$docs
+  })
 }
 
 

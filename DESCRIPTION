@@ -2,10 +2,13 @@ Package: rcmip6
 Title: Download CMIP6 Data
 Version: 0.0.1.9000
 Authors@R: 
-    person("Elio", "Campitelli", , "elio.campitelli@cima.fcen.uba.ar", role = c("cre", "aut"),
+    person("Elio", "Campitelli", , "elio.campitelli@cima.fcen.uba.ar", 
+           role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-7742-9230"))
 Description: Search and download CMIP6 data. 
 License: GPL-3
+URL: https://github.com/eliocamp/rcmip6
+BugReports: https://github.com/eliocamp/rcmip6/issues
 Encoding: UTF-8
 Language: en
 Roxygen: list(markdown = TRUE)
@@ -20,8 +23,6 @@ Imports:
     furrr
 Suggests: 
     rstudioapi,
-    knitr,
-    rmarkdown,
     testthat (>= 3.0.0),
     covr
 Config/testthat/edition: 3

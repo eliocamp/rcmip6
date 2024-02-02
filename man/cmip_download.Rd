@@ -20,7 +20,10 @@ cmip_download(
 
 \item{user, comment}{Optional strings to use when saving the log for each file.}
 
-\item{year_range}{An integer vector of length 2, indicating the start and end range of years. Restricts the download of model output with files that include some data within this range of years. Defaults to c(-Inf, Inf) to include all possible files}
+\item{year_range}{An integer vector of length 2, indicating the start and
+end range of years. Restricts the download of model output with files that
+include some data within this range of years. Defaults to c(-Inf, Inf) to
+include all possible files}
 
 \item{...}{Ignored}
 }

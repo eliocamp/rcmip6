@@ -8,6 +8,14 @@
 \description{
 Search and download CMIP6 data.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/eliocamp/rcmip6}
+  \item Report bugs at \url{https://github.com/eliocamp/rcmip6/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Elio Campitelli \email{elio.campitelli@cima.fcen.uba.ar} (\href{https://orcid.org/0000-0002-7742-9230}{ORCID})
 

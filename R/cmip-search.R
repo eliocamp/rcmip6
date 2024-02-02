@@ -7,9 +7,9 @@
 #' @details
 #' The easiest way to get a valid `query` list is to use the search portal at
 #' ([https://esgf-node.llnl.gov/search/cmip6/](https://esgf-node.llnl.gov/search/cmip6/))
-#' to make a search that approximates what you are looking for. Then, under the number of
-#' results there's a link that reads "return results as JSON". Copy that link and pass it
-#' to `[cmip_url_to_list()]`.
+#' to make a search that approximates what you are looking for. Then, under the
+#' number of results there's a link that reads "return results as JSON".
+#' Copy that link and pass it to `[cmip_url_to_list()]`.
 #' On RStudio you can also use the AddIn.
 #'
 #' @return
@@ -39,14 +39,38 @@ cmip_search <- function(query) {
 }
 
 columns_to_vector <- function(results) {
-  to_vector <- c("activity_drs", "activity_id", "cf_standard_name", "citation_url",
-                 "data_specs_version", "dataset_id_template_", "directory_format_template_",
-                 "experiment_id", "experiment_title", "frequency", "further_info_url",
-                 "grid", "grid_label", "institution_id", "member_id", "mip_era",
-                 "model_cohort", "nominal_resolution", "pid", "product", "project",
-                 "realm", "source_id", "sub_experiment_id", "table_id", "variable",
-                 "variable_id", "variable_long_name", "variable_units", "variant_label",
-                 "geo_units", "branch_method", "short_description")
+  to_vector <- c("activity_drs",
+                 "activity_id",
+                 "cf_standard_name",
+                 "citation_url",
+                 "data_specs_version",
+                 "dataset_id_template_",
+                 "directory_format_template_",
+                 "experiment_id",
+                 "experiment_title",
+                 "frequency",
+                 "further_info_url",
+                 "grid", "grid_label",
+                 "institution_id",
+                 "member_id",
+                 "mip_era",
+                 "model_cohort",
+                 "nominal_resolution",
+                 "pid",
+                 "product",
+                 "project",
+                 "realm",
+                 "source_id",
+                 "sub_experiment_id",
+                 "table_id",
+                 "variable",
+                 "variable_id",
+                 "variable_long_name",
+                 "variable_units",
+                 "variant_label",
+                 "geo_units",
+                 "branch_method",
+                 "short_description")
 
   for (col in to_vector) {
     vec <- results[[col]]
@@ -104,7 +128,7 @@ list_pretty_format <- function(list) {
 #' Removes a lot of less important columns from the output of
 #' `cmip_search()`. The full dataset is stored in the hidden column
 #' `full_info`.
-#' Use `cmip_unsimplify()` to return to the original format (this is needed fr )
+#' Use `cmip_unsimplify()` to return to the original format
 #'
 #' @inheritParams cmip_download
 #' @param data A simplifided output from `cmip_simplify()`
@@ -123,7 +147,8 @@ cmip_simplify <- function(results) {
 
   vars <- setdiff(vars, "root")
   simple <- results[, vars, with = FALSE]
-  simple$full_info <- split(results[, -vars, with = FALSE], seq_len(nrow(results)))
+  simple$full_info <- split(results[, -vars, with = FALSE],
+                            seq_len(nrow(results)))
   class(simple) <- c("cmip_simple", class(simple))
   attr(simple, "column") <- columns
   simple

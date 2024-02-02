@@ -77,15 +77,13 @@ test_that("Download works", {
   expect_error(cmip_root_set(root), NA)
   expect_equal(cmip_root_get(), root)
 
-  suppressMessages(expect_s3_class(files <- cmip_download(results[c(1:2)]), "data.frame"))
+  suppressMessages(expect_type(files <- cmip_download(results[c(1:2)]), "list"))
 
-  # expect_equal(nrow(files), 2)
-  expect_type(files$destfile, "character")
+  expect_equal(length(files), 2)
+  expect_type(unlist(files), "character")
 
-  # cmip_filter_downloaded(results[c(1:2), ])
-
-  expect_true(all(file.exists(files$destfile)))
-  # suppressMessages(expect_message(cmip_download(results[1]), "Skipping"))
+  expect_true(all(file.exists(unlist(files))))
+  suppressMessages(expect_message(cmip_download(results[1]), "All files"))
 
 })
 
@@ -137,9 +135,10 @@ test_that("year_range argument in cmip_download works", {
   expect_error(files <- cmip_download(results, year_range = c(1993, 1992)))
   suppressMessages(expect_type(files <- cmip_download(results, year_range = c(1993, 1994)), "list"))
 
-  expect_length(files$destfile, 2)
-  expect_type(files$destfile, "character")
+  expect_length(files, 1)
+  expect_length(files[[1]], 2)
+  expect_type(unlist(files), "character")
 
-  expect_false(all(file.exists(unlist(files))))
+  expect_true(all(file.exists(unlist(files))))
   expect_equal(sum(file.exists(unlist(files))), 2)
 })

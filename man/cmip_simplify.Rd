@@ -18,5 +18,5 @@ cmip_unsimplify(data)
 Removes a lot of less important columns from the output of
 \code{cmip_search()}. The full dataset is stored in the hidden column
 \code{full_info}.
-Use \code{cmip_unsimplify()} to return to the original format (this is needed fr )
+Use \code{cmip_unsimplify()} to return to the original format
 }

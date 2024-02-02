@@ -66,6 +66,10 @@ results |>
 The, download the data.
 Just as a demonstration, download only the first result
 
+```{r include=FALSE}
+sink <- unlink(list.files("readme_example", full.names = TRUE, recursive = TRUE))
+```
+
 ```{r}
 cmip_root_set("readme_example")   # Set the root folder where to save files 
 options(timeout = 360)            # Kind of important for some reason
@@ -91,6 +95,6 @@ Note that these are the *file server* URLs, in at lease some cases we can substi
 
 ```{r urls}
 urls <- cmip_urls(results)
-str(urls)
-basename(urls[1:3])
+urls[[1]]
+basename(unlist(urls[1:3]))
 ```

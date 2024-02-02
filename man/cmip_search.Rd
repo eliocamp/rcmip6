@@ -29,8 +29,8 @@ Query CMIP data
 \details{
 The easiest way to get a valid \code{query} list is to use the search portal at
 (\url{https://esgf-node.llnl.gov/search/cmip6/})
-to make a search that approximates what you are looking for. Then, under the number of
-results there's a link that reads "return results as JSON". Copy that link and pass it
-to \verb{[cmip_url_to_list()]}.
+to make a search that approximates what you are looking for. Then, under the
+number of results there's a link that reads "return results as JSON".
+Copy that link and pass it to \verb{[cmip_url_to_list()]}.
 On RStudio you can also use the AddIn.
 }

@@ -12,12 +12,13 @@ cmip_root_get()
 \arguments{
 \item{root}{Root folder.}
 
-\item{mode}{Mode that defines fodler permissions. Can be an umask valid string or
-the aliases:
+\item{mode}{Mode that defines folder permissions. Can be an umask valid
+string or the aliases:
 \itemize{
 \item "default": the default umask returned by \code{Sys.umask(NA)}.
 \item "shared": read and write permissions to any user (mode "0000")
-\item "private": read and write permissions only for the current user (mode "7777")
+\item "private": read and write permissions only for the current user
+(mode "7777")
 }}
 }
 \description{

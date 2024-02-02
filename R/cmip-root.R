@@ -1,11 +1,12 @@
 #' Set or get the root folder for CMIP data.
 #'
 #' @param root Root folder.
-#' @param mode Mode that defines fodler permissions. Can be an umask valid string or
-#' the aliases:
+#' @param mode Mode that defines folder permissions. Can be an umask valid
+#' string or the aliases:
 #'  - "default": the default umask returned by `Sys.umask(NA)`.
 #'  - "shared": read and write permissions to any user (mode "0000")
-#'  - "private": read and write permissions only for the current user (mode "7777")
+#'  - "private": read and write permissions only for the current user
+#'  (mode "7777")
 #'
 #'@export
 cmip_root_set <- function(root, mode = "default") {
