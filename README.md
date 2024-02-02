@@ -76,6 +76,9 @@ cmip_root_set("readme_example")   # Set the root folder where to save files
 options(timeout = 360)            # Kind of important for some reason
 
 files <- cmip_download(results[1])
+#> Requesting metadata...
+#> Checking for existing files...
+#> Downloading...
 ```
 
 The files are saved mirroring the source file structure to ensure that
@@ -161,7 +164,7 @@ cmip_available()
 #>       _version_ retracted               _timestamp score branch_method
 #> 1: 1.637114e+18     FALSE 2019-06-23T06:59:01.531Z     1            NA
 #>    short_description               info
-#> 1:                NA <data.frame[1x53]>
+#> 1:                NA <data.frame[1x54]>
 #>                                                                                                                                                                                                                                                                               files
 #> 1: readme_example/CMIP6/CMIP/CCCma/CanESM5/historical/r10i1p2f1/Amon/tas/gn/1/tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc,readme_example/CMIP6/CMIP/CCCma/CanESM5/historical/r10i1p2f1/Amon/tas/gn/1/tas_Amon_CanESM5_historical_r10i1p2f1_gn_185001-201412.nc.chksum
 ```
