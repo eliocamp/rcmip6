@@ -1,6 +1,6 @@
 Package: rcmip6
 Title: Download CMIP6 Data
-Version: 0.0.1.9000
+Version: 0.0.2
 Authors@R: 
     person("Elio", "Campitelli", , "elio.campitelli@cima.fcen.uba.ar", 
            role = c("cre", "aut"),

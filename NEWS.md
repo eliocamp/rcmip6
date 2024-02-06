@@ -1,9 +1,9 @@
-# rcmip6 0.0.1.9000
+# rcmip6 0.0.2
 
 ## New Features
 
 -   To speed up downloads, `cmip_download()` will try to read the checksum of each file from a previously-saved file with extension `.chksum` and it will create it if it doesn't exist.
--   `cmip_download()` is now rewritten using `curl::download_multi()` for concurrent downloads.
+-   `cmip_download()` is now rewritten using concurrent downloads.
 -   `cmip_search()` now allows to search for replicas.
 -   `filter_replicas()` will check online status of the datanodes and return a single replica per result that's online.
 -   `cmip_search()` now turns most columns into vector columns instead of list columns.
