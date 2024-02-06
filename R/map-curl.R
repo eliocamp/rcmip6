@@ -44,6 +44,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
 
   fail_fn <- function(err, i) {
     message(tr_("Failed: %s with error %s", urls[i],  err))
+    unlink(files[i])   # Clean up unfinished files.
     attempts[i] <<- attempts[i] + 1
     if (attempts[i] <= retry) {
       message(tr_("Retrying..."))
