@@ -74,6 +74,8 @@ test_that("cmip_info() works", {
 })
 
 test_that("Download works", {
+  root <- tempfile()
+  dir.create(root)
   expect_error(cmip_root_set(root), NA)
   expect_equal(cmip_root_get(), root)
 

@@ -20,7 +20,8 @@ Imports:
     digest,
     data.table,
     curl,
-    furrr
+    furrr,
+    progress
 Suggests: 
     rstudioapi,
     testthat (>= 3.0.0),

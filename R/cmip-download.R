@@ -22,7 +22,6 @@ cmip_download <- function(results,
   if(year_range[1] > year_range[2]) {
     stop(tr_("The start year cannot be greater than the end year"))
   }
-
   root <- path.expand(root)
 
   # Evaluate these now so that if they involve expressions that can fail,
@@ -48,6 +47,7 @@ cmip_download <- function(results,
   is_requested <- extract_info_column(results, "is_requested")
   needs_download <- extract_info_column(results, "needs_download")
 
+
   # These variables are lists of length nrow(requests)
   # I need to flatten the list to vectorise and paralellise
   # but then I want to pack the results back into the same structure
@@ -63,6 +63,7 @@ cmip_download <- function(results,
 
   # Get all filenames
   files <- unlist(info_lapply(results, file_from_info, root = root))
+  file_size <- unlist(extract_info_column(results, "size"))
 
   if (sum(is_requested) == 0) {
     warning(tr_("No files within specified year_range."))
@@ -86,10 +87,13 @@ cmip_download <- function(results,
                  recursive = TRUE, showWarnings = FALSE)
 
   if (sum(needs_download) != sum(is_requested)) {
-    message(tr_("Skipping, %i files already downloaded.", sum(needs_download) - sum(is_requested)))
+    message(tr_("Skipping, %i files already downloaded.", sum(is_requested) - sum(needs_download)))
   }
+
   message(tr_("Downloading..."))
-  downloaded <- map_curl(urls[needs_download], files[needs_download])
+  downloaded <- map_curl(urls = urls[needs_download],
+                         files = files[needs_download],
+                         sizes = file_size)
 
   # Create all the checksums
   sink <- lapply(seq_along(files[needs_download]), function(i) {

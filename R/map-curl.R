@@ -1,12 +1,14 @@
 # From https://github.com/noamross/scrapetools/blob/eb1be9de5db15997669e572cdd4be508919b8438/R/map_curl.R
-map_curl <- function(urls, files = NULL, delay = 1, retry = 5,
-                     total_connections = 100L, host_connections = 6L) {
+map_curl <- function(urls, files = NULL, sizes = NA,
+                     delay = 0.5, retry = 5,
+                     total_connections = 100L,
+                     host_connections = 6L) {
   out <- structure(vector("list", length(urls)), .Names = urls)
   attempts <- structure(rep(0, length(urls)), .Names = urls)
 
   # Make delay a bit random
   if (delay != 0) {
-    delay_fn <- function() Sys.sleep(rnorm(1, delay, delay/10)^2)
+    delay_fn <- function() Sys.sleep(stats::rnorm(1, delay, delay/10)^2)
   } else {
     delay_fn <- function() {}
   }
@@ -15,6 +17,10 @@ map_curl <- function(urls, files = NULL, delay = 1, retry = 5,
     stopifnot(length(urls) == length(files))
     names(files) <- urls
   }
+
+  pb <- progress::progress_bar$new(total = sum(sizes),
+                                   format = ":spin [:bar] :rate - :bytes (:percent)",
+                                   clear = FALSE)
 
   make_handle <- function(i) {
     h <- curl::new_handle(url = urls[i])
@@ -27,56 +33,54 @@ map_curl <- function(urls, files = NULL, delay = 1, retry = 5,
                              host_con = host_connections)
 
   done_fn <- function(resp, i) {
-    if (!is.null(files)) {
-      # on.exit(print(i))
-      con <- file(files[i], "wb")
-      writeBin(resp$content, con)
-      close.connection(con)
-    }
     resp$content <- NULL  # Remove content to free up memory.
-
     out[[i]] <<- resp
     attempts[[i]] <<- attempts[[i]] + 1
-
-    message(tr_("Successfuly downloaded: %s", resp$url))
+    if (!pb$finished) {
+      pb$message(msg = tr_("Successfuly downloaded: %s", resp$url))
+    }
     delay_fn()
   }
 
   fail_fn <- function(err, i) {
     message(tr_("Failed: %s with error %s", urls[i],  err))
-
     attempts[i] <<- attempts[i] + 1
     if (attempts[i] <= retry) {
       message(tr_("Retrying..."))
-      curl::multi_add(make_handle(i),
-                      done = done_fn,
-                      pool = map_pool,
-                      fail = function(err) fail_fn(err, i))
+      # It would be great to add support for resuming the download.
+      pb$tick(len = -file.size(files[i]))  # remove downloaded data from progress
+      add_job(i)
       delay_fn()
     }
+  }
 
+  # This is not strictly needed, but it can be useful for debugging purposes
+  # (Add some message or breakpoint)
+  data_fn <- function(data, close, i, writer) {
+    if (!close & !pb$finished) {
+      pb$tick(len = length(data))
+    }
+    writer(data, close)
+  }
+
+  add_job <- function(i) {
+    force(i)
+
+    writer <- curl::file_writer(files[i], append = FALSE)
+    curl::multi_add(make_handle(i),
+                    done = function(resp) done_fn(resp, i),
+                    fail = function(err) fail_fn(err, i),
+                    data = function(data, close) data_fn(data, close, i, writer),
+                    pool = map_pool)
   }
 
   for (i in seq_along(urls)) {
-    fail_closure <- function() {
-      ival <- i
-      function(err) fail_fn(err, ival)
-    }
-
-    done_closure <- function() {
-      ival <- i
-      function(resp) done_fn(resp, ival)
-    }
-
-
-    curl::multi_add(make_handle(i),
-                    done = done_closure(),
-                    fail = fail_closure(),
-                    pool = map_pool)
+    add_job(i)
   }
 
   curl::multi_run(timeout = Inf, poll = FALSE, pool = map_pool)
 
+  pb$terminate()
   if (!is.null(names(urls))) {
     names(out) <- names(urls)
     names(attempts) <- names(attempts)
