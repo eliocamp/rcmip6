@@ -26,7 +26,7 @@ info_add_needs_download <- function(info,
   file <- file.path(result_dir(info, root = root), info$title)
   exists <- file.exists(file)
 
-  matches_checksum <- vapply(seq_along(info$title), function(i) {
+  matches_checksum <- furrr::future_map_lgl(seq_along(info$title), function(i) {
     if (overlaps[i] && exists[i]) {  # Only check if necessary.
       matches <- checksum_matches(file[i],
                                   checksum_type = tolower(info$checksum_type[[i]]),
