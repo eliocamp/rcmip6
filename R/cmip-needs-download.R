@@ -2,7 +2,7 @@ cmip_add_needs_download <- function(results,
                                     root = cmip_root_get(),
                                     year_range = c(-Inf, Inf)) {
   if (is.null(results$info)) {
-    infos <- get_results_info(results)
+    infos <- cmip_add_info(results)$info
   } else {
     infos <- results$info
   }
@@ -29,12 +29,12 @@ info_add_needs_download <- function(info,
   matches_checksum <- vapply(seq_along(info$title), function(i) {
     if (overlaps[i] && exists[i]) {  # Only check if necessary.
       matches <- checksum_matches(file[i],
-                              checksum_type = tolower(info$checksum_type[[i]]),
-                              checksum = info$checksum[[i]])
+                                  checksum_type = tolower(info$checksum_type[[i]]),
+                                  checksum = info$checksum[[i]])
       if (isTRUE(matches)) {
         message(tr_("Skipping %s (matching checksum).", file[i]))
-        return(matches)
       }
+      return(matches)
     } else {
       return(FALSE)
     }

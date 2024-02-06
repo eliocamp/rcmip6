@@ -36,7 +36,9 @@ cmip_download <- function(results,
 
   message(tr_("Requesting metadata..."))
   # Request metadata and check download necessity
-  results$info <- get_results_info(results)
+  if (is.null(results$info)) {
+    results <- cmip_add_info(results)
+  }
 
   message(tr_("Checking for existing files..."))
   results <- cmip_add_needs_download(results, root = root,
@@ -87,7 +89,7 @@ cmip_download <- function(results,
     message(tr_("Skipping, %i files already downloaded.", sum(needs_download) - sum(is_requested)))
   }
   message(tr_("Downloading..."))
-  downloaded <- multi_download_retry(urls[needs_download], files[needs_download])
+  downloaded <- map_curl(urls[needs_download], files[needs_download])
 
   # Create all the checksums
   sink <- lapply(seq_along(files[needs_download]), function(i) {

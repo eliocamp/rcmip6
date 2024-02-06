@@ -20,12 +20,11 @@
 #' @return character vector of URLs
 #' @export
 cmip_urls <- function(results) {
-  infos <- get_results_info(results)
+  infos <- cmip_add_info(results)$info
   lapply(infos, urls_from_info)
 }
 
-
-get_results_info <- function(results) {
+cmip_add_info <- function(results) {
   urls <- paste0("https://aims2.llnl.gov/metagrid-backend/proxy/search?dataset_id=",
                  utils::URLencode(results$id),
                  "&format=application%2Fsolr%2Bjson&limit=9999&offset=0&type=File&")
@@ -35,14 +34,18 @@ get_results_info <- function(results) {
   res <- multi_download_retry(urls = urls, destfiles = files)
 
   if (any(res$status_code != 200)) {
-    warning(tr_("Failed to get metadata of some results. Ignoring them"))
+    warning(tr_("Failed to get metadata of some results."))
   }
 
   results <- results[res$status_code == 200, ]
   res <- res[res$status_code == 200, ]
-  lapply(res$destfile, function(file) {
+  results$info <- lapply(res$destfile, function(file) {
+    if (is.null(file)) {
+      return(NULL)
+    }
     jsonlite::fromJSON(readLines(file))$response$docs
   })
+  results
 }
 
 
