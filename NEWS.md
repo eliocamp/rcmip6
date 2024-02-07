@@ -1,3 +1,9 @@
+# rcmip6 (development version)
+
+## Bugfixes
+
+-   Fixed error when a download fails without saving any data.
+
 # rcmip6 0.0.2
 
 ## New Features

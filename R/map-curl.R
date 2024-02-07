@@ -49,7 +49,10 @@ map_curl <- function(urls, files = NULL, sizes = NA,
     if (attempts[i] <= retry) {
       message(tr_("Retrying..."))
       # It would be great to add support for resuming the download.
-      pb$tick(len = -file.size(files[i]))  # remove downloaded data from progress
+      if (exists(files[i])) {
+        pb$tick(len = -file.size(files[i]))  # remove downloaded data from progress
+      }
+
       add_job(i)
       delay_fn()
     }
