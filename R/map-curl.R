@@ -44,11 +44,12 @@ map_curl <- function(urls, files = NULL, sizes = NA,
   }
 
   fail_fn <- function(err, i) {
-    message(tr_("Failed: %s with error %s", urls[i],  err))
+    message <- tr_("Failed: %s with error %s.", urls[i],  err)
     unlink(files[i])   # Clean up unfinished files.
     attempts[i] <<- attempts[i] + 1
     if (attempts[i] <= retry) {
-      message(tr_("Retrying..."))
+      message <- paste0(message, tr_(".. retrying"))
+
       # It would be great to add support for resuming the download.
       if (exists(files[i])) {
         pb$tick(len = -file.size(files[i]))  # remove downloaded data from progress
@@ -57,6 +58,11 @@ map_curl <- function(urls, files = NULL, sizes = NA,
       add_job(i)
       delay_fn()
     }
+
+    if (!pb$finished) {
+      pb$message(msg = message)
+    }
+
   }
 
   # This is not strictly needed, but it can be useful for debugging purposes
