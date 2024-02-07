@@ -18,6 +18,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
     names(files) <- urls
   }
 
+  message(tr_("Downloading %s in %i files...", format_bytes(sum(sizes)), length(files)))
   pb <- progress::progress_bar$new(total = sum(sizes),
                                    format = ":spin [:bar] :rate - :bytes (:percent)",
                                    clear = FALSE)
@@ -92,4 +93,20 @@ map_curl <- function(urls, files = NULL, sizes = NA,
   attr(out, "attempts") <- attempts
   class(out) <- "map_curl"
   return(out)
+}
+
+
+
+
+format_bytes <- function (x) {
+  powers <- c(k = 1, M = 2, G = 3, T = 4, P = 5, E = 6, Z = 7, Y = 8)
+
+  symbols <- c("B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+
+  base <- 1000
+
+  power <- findInterval(abs(x), base^powers)
+  symbol <- symbols[1L + power]
+
+  paste0(signif(x/base^power, 3), " ", symbol)
 }

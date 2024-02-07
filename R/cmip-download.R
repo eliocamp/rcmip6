@@ -194,5 +194,16 @@ print.cmip_size <- function(x, ...) {
 }
 
 
+cmip_database_file <- function(root = cmip_root_get()) {
+  file.path(root, "rcmip6.json")
+}
+cmip_database_write <- function(database, root = cmip_root_get()) {
+
+  jsonlite::write_json(database, cmip_database_file)
+
+}
+cmip_database_read <- function(root = cmip_root_get()) {
 
 
+
+}
