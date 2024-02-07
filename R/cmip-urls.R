@@ -39,15 +39,31 @@ cmip_add_info <- function(results) {
 
   results <- results[res$status_code == 200, ]
   res <- res[res$status_code == 200, ]
-  results$info <- lapply(res$destfile, function(file) {
+  info <- lapply(res$destfile, function(file) {
     if (is.null(file)) {
       return(NULL)
     }
-    jsonlite::fromJSON(readLines(file))$response$docs
+    jsonlite::read_json(file, simplifyVector = TRUE)$response$docs
   })
+  ## Info has almost the same information than results and it's used for storage
+  ## Results do have some other columns, add them just in case.
+  for (i in seq_along(info)) {
+    missing_columns <- colnames(results)[!(colnames(results) %in% colnames(info[[i]]))]
+    info[[i]][missing_columns] <- lapply(results[i, missing_columns, with = FALSE],
+                                         rep, times = nrow(info[[i]]))
+  }
+
+  results$info <- info
   results
 }
 
+df2list <- function(x) {
+  lapply(seq_len(nrow(x)), function(i) as.list(x[i, ]))
+}
+flatten_info <- function(info) {
+  r <- lapply(info, df2list)
+  unlist(r, recursive = FALSE)
+}
 
 multi_download_retry <- function(urls, destfiles, retry = 5) {
   # Not very elegant, but will have to do
@@ -57,7 +73,8 @@ multi_download_retry <- function(urls, destfiles, retry = 5) {
   tries <- 1
   while(tries < retry & nrow(to_retry) > 0) {
     message(tr_("Some downloads failed. Retrying..."))
-    res[res$status_code != 200, ] <- curl::multi_download(urls = to_retry$url, destfiles = to_retry$destfile)
+    res[res$status_code != 200, ] <- curl::multi_download(urls = to_retry$url,
+                                                          destfiles = to_retry$destfile)
     to_retry <- res[res$status_code != 200, ]
     tries <- tries + 1
   }

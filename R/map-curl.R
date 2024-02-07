@@ -1,5 +1,7 @@
 # From https://github.com/noamross/scrapetools/blob/eb1be9de5db15997669e572cdd4be508919b8438/R/map_curl.R
 map_curl <- function(urls, files = NULL, sizes = NA,
+                     metadata = NA,
+                     database_file = NA,
                      delay = 0.5, retry = 5,
                      total_connections = 100L,
                      host_connections = 6L) {
@@ -30,34 +32,74 @@ map_curl <- function(urls, files = NULL, sizes = NA,
     return(h)
   }
 
+  database <- list()
+
+  on.exit({
+    if (length(database) != 0) {
+      jsonlite::write_json(database, database_file, pretty = TRUE)
+    }
+  })
+
   map_pool <- curl::new_pool(total_con = total_connections,
                              host_con = host_connections)
 
-  done_fn <- function(resp, i) {
-    resp$content <- NULL  # Remove content to free up memory.
-    out[[i]] <<- resp
-    attempts[[i]] <<- attempts[[i]] + 1
-    if (!pb$finished) {
-      pb$message(msg = tr_("Successfuly downloaded: %s", resp$url))
-    }
-    delay_fn()
-  }
 
-  fail_fn <- function(err, i) {
-    message <- tr_("Failed: %s with error %s.", urls[i],  err)
+
+  retry_maybe <- function(i, message = "") {
     unlink(files[i])   # Clean up unfinished files.
     attempts[i] <<- attempts[i] + 1
+
     if (attempts[i] <= retry) {
       message <- paste0(message, tr_(".. retrying"))
-
       # It would be great to add support for resuming the download.
-      if (exists(files[i])) {
+      if (file.exists(files[i])) {
         pb$tick(len = -file.size(files[i]))  # remove downloaded data from progress
       }
 
       add_job(i)
-      delay_fn()
     }
+    delay_fn()
+  }
+
+  done_fn <- function(resp, i) {
+    resp$content <- NULL  # Remove content to free up memory.
+
+    ## Sometimes request are completed with bad status
+    if (resp$status_code > 200) {
+      message <-tr_("Failed to download: %s", basename(files[i]))
+
+      retry_maybe(i, message)
+      return(NULL)
+    }
+
+    ## Check local hash. This might be a bit slow, but it's important.
+    local_hash <- digest::digest(file = files[i],
+                                 algo = tolower(metadata[[i]]$checksum_type[[1]]))
+
+    if (local_hash != metadata[[i]]$checksum[[1]]) {
+      message <- tr_("Downloaded file hash doesn't match.")
+
+      retry_maybe(i, message)
+      return(NULL)
+    }
+
+    message = tr_("Successfuly downloaded: %s", basename(files[i]))
+    out[[i]] <<- resp
+
+    ## Write this file in the database
+    database <<- append(database, metadata[i])
+
+    if (!pb$finished) {
+      pb$message(msg = message)
+    }
+    delay_fn()
+  }
+
+
+  fail_fn <- function(err, i) {
+    message <- tr_("Failed: %s with error %s.", files[i],  err)
+
+    retry_maybe(i)
 
     if (!pb$finished) {
       pb$message(msg = message)

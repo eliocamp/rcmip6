@@ -10,6 +10,7 @@ cmip_download(
   user = Sys.info()[["user"]],
   comment = NULL,
   year_range = c(-Inf, Inf),
+  check_diskspace = TRUE,
   ...
 )
 }
@@ -24,6 +25,9 @@ cmip_download(
 end range of years. Restricts the download of model output with files that
 include some data within this range of years. Defaults to c(-Inf, Inf) to
 include all possible files}
+
+\item{check_diskspace}{Logical indicating whether to check if location has
+enough space to download all the requested files.}
 
 \item{...}{Ignored}
 }

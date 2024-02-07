@@ -1,5 +1,17 @@
 # rcmip6 (development version)
 
+## New features
+
+-   `cmip_download()` will check available space and stop with an error if there isn't enough.
+    You can bypass this by setting `check_diskspace = FALSE`.
+
+## Breaking changes
+
+-   The database of available files is now somewhat centralised at the root of the download folders.
+    Each "download event" (a call to `cmip_download()`) will write its own json file with the information of the downloaded files (this is to prevent multiple concurrent downloads to try to read and write the same file).
+    Having to read just a few files in a single folder should speed up `cmip_available()` tremendously because it doesn't need to list potentially tens of thousands of files in a deeply-nested folder structure.
+    However, this completely breaks backwards compatibility.
+
 ## Bugfixes
 
 -   Fixed error when a download fails without saving any data.

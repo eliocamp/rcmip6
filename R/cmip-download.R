@@ -89,10 +89,9 @@ cmip_download <- function(results,
   }
 
 
-  # Checksums
-  checksums <- unlist(extract_info_column(results, "checksum"))
-  checksum_types <- unlist(extract_info_column(results, "checksum_type"))
-  checksum_files <- paste0(files, ".chksum")
+  if (sum(needs_download) != sum(is_requested)) {
+    message(tr_("Skipping, %i files already downloaded.", sum(is_requested) - sum(needs_download)))
+  }
 
   # Create all folders
   sink <- vapply(unique(dirname(files)[needs_download]),
@@ -100,34 +99,12 @@ cmip_download <- function(results,
                  FUN.VALUE = numeric(1),
                  recursive = TRUE, showWarnings = FALSE)
 
-  if (sum(needs_download) != sum(is_requested)) {
-    message(tr_("Skipping, %i files already downloaded.", sum(is_requested) - sum(needs_download)))
-  }
-
   message(tr_("Downloading..."))
   downloaded <- map_curl(urls = urls[needs_download],
                          files = files[needs_download],
-                         sizes = file_size)
-
-  # Create all the checksums
-  sink <- lapply(seq_along(files[needs_download]), function(i) {
-    local_checksum <- digest::digest(file = files[needs_download][i],
-                                     algo = tolower(checksum_types[needs_download][i]))
-    writeLines(text = local_checksum, con = checksum_files[needs_download][i])
-    return(0)
-  })
-
-  # Write the model.info thing
-  for (i in seq_len(nrow(results))) {
-    these_files <- file_from_info(results[i, ]$info[[1]], root = root)
-    they_exist <- file.exists(these_files)
-    if (sum(they_exist) != 0) {
-      results[i, ]$info[[1]] <- results[i, ]$info[[1]][they_exist, ]
-
-      writeLines(jsonlite::serializeJSON(results[i, ], pretty = TRUE),
-                 file.path(dirname(these_files)[1], "model.info"))
-    }
-  }
+                         sizes = file_size[needs_download],
+                         metadata = flatten_info(results$info)[needs_download],
+                         database_file = cmip_database_file(root = root))
 
 
   # TODO: I can't do this with the new refactor.
@@ -209,8 +186,10 @@ print.cmip_size <- function(x, ...) {
 
 
 cmip_database_file <- function(root = cmip_root_get()) {
-  file.path(root, "rcmip6.json")
+  file <- paste0(format(Sys.time(), format = "%Y-%m-%d_%H-%M-%S"), "_rcmip6.json")
+  file.path(root, file)
 }
+
 cmip_database_write <- function(database, root = cmip_root_get()) {
 
   jsonlite::write_json(database, cmip_database_file)

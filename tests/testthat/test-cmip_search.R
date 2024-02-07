@@ -93,14 +93,8 @@ test_that("cmip_available() works", {
   expect_s3_class(available <- cmip_available(), "data.table")
   expect_true(nrow(available) > 0)
 
-  expect_type(available[["files"]], "list")
-  # Removes extra column
-  available[, files := NULL]
-
-  available <- available[, colnames(results), with = FALSE]
-
-  expect_equal(results[c(1:2)][order(id)],
-               available[order(id)])
+  expect_type(available$file, "character")
+  expect_true(all(file.exists(available$file)))
 })
 
 test_that("Failed instances give proper message", {
