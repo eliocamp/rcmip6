@@ -21,7 +21,8 @@ Imports:
     data.table,
     curl,
     furrr,
-    progress
+    progress,
+    ps
 Suggests: 
     rstudioapi,
     testthat (>= 3.0.0),

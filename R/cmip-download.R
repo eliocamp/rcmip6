@@ -7,6 +7,8 @@
 #'  include some data within this range of years. Defaults to c(-Inf, Inf) to
 #'  include all possible files
 #' @param user,comment Optional strings to use when saving the log for each file.
+#' @param check_diskspace Logical indicating whether to check if location has
+#' enough space to download all the requested files.
 #' @param ... Ignored
 #'
 #' @return
@@ -18,6 +20,7 @@ cmip_download <- function(results,
                           user = Sys.info()[["user"]],
                           comment = NULL,
                           year_range = c(-Inf, Inf),
+                          check_diskspace = TRUE,
                           ...) {
   if(year_range[1] > year_range[2]) {
     stop(tr_("The start year cannot be greater than the end year"))
@@ -74,6 +77,17 @@ cmip_download <- function(results,
     message(tr_("All files already downloaded"))
     return(split(files[is_requested], ids))
   }
+
+  if (check_diskspace) {
+    available_disk <- ps::ps_disk_usage(root)$available
+    if (sum(file_size) > available_disk) {
+      stop(tr_(c("Not enough disk space. Need to download %s by %s avaiable.\n",
+                 "Use `check_diskspace = FALSE` to skip this check."),
+               format_bytes(sum(file_size)),
+               format_bytes(available_disk)))
+    }
+  }
+
 
   # Checksums
   checksums <- unlist(extract_info_column(results, "checksum"))
