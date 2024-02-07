@@ -6,7 +6,7 @@
 
 ## Breaking changes
 
--   The database of available files is now somewhat centralised at the root of the download folders. Each "download event" (a call to `cmip_download()`) will write its own json file with the information of the downloaded files (this is to prevent multiple concurrent downloads to try to read and write the same file). Having to read just a few files in a single folder should speed up `cmip_available()` tremendously because it doesn't need to list potentially tens of thousands of files in a deeply-nested folder structure. However, this completely breaks backwards compatibility. The `cmip_avaiable_legacy()` function will read data from the previous versions and `cmip_available_convert()` will convert to the current version.
+-   The database of available files is now somewhat centralised at the root of the download folders. Each "download event" (a call to `cmip_download()`) will write its own json file with the information of the downloaded files (this is to prevent multiple concurrent downloads to try to read and write the same file). Having to read just a few files in a single folder should speed up `cmip_available()` tremendously because it doesn't need to list potentially tens of thousands of files in a deeply-nested folder structure. However, this completely breaks backwards compatibility. The `cmip_avaiable_legacy()` function will read data from the previous versions.
 -   The return value of the new `cmip_available()` is not compatible with the old one. The previous version returned a data.frame with one row per model, with a nested list column with the various files associated with it. The new version returns a data.frame with one column per file.
 
 ## Bugfixes

@@ -98,12 +98,15 @@ cmip_download <- function(results,
                  dir.create,
                  FUN.VALUE = numeric(1),
                  recursive = TRUE, showWarnings = FALSE)
+  metadata <- flatten_info(results$info)[needs_download]
+  metadata$is_requested <- NULL
+  metadata$needs_download <- NULL
 
   message(tr_("Downloading..."))
   downloaded <- map_curl(urls = urls[needs_download],
                          files = files[needs_download],
                          sizes = file_size[needs_download],
-                         metadata = flatten_info(results$info)[needs_download],
+                         metadata = metadata,
                          database_file = cmip_database_file(root = root))
 
 

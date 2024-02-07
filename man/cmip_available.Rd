@@ -3,14 +3,11 @@
 \name{cmip_available}
 \alias{cmip_available}
 \alias{cmip_available_legacy}
-\alias{cmip_available_convert}
 \title{List downloaded models.}
 \usage{
 cmip_available(root = cmip_root_get())
 
 cmip_available_legacy(root = cmip_root_get())
-
-cmip_available_convert(root = cmip_root_get())
 }
 \arguments{
 \item{root}{Root folder to download and organise the data.}
@@ -25,6 +22,4 @@ data.frame
 \details{
 \code{cmip_available_legacy()} reads from the older way of storing information
 and will only work for files downloaded with version <= 0.0.2 of the package.
-\code{cmip_available_convert()} will try to read your downloads and convert it
-to the new store.
 }

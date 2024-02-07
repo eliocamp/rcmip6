@@ -40,3 +40,5 @@ po/*~
 readme_example
 
 tests/testthat/old_database/
+
+tests/testthat/new_database/
