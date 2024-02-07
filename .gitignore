@@ -38,3 +38,5 @@ po/*~
 /*_files/
 # End of https://www.toptal.com/developers/gitignore/api/r
 readme_example
+
+tests/testthat/old_database/
