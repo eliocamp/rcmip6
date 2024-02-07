@@ -51,6 +51,11 @@ cmip_add_info <- function(results) {
     missing_columns <- colnames(results)[!(colnames(results) %in% colnames(info[[i]]))]
     info[[i]][missing_columns] <- lapply(results[i, missing_columns, with = FALSE],
                                          rep, times = nrow(info[[i]]))
+
+    # The version that comes in the info is always "1", for some reason.
+    # I use the results version because it's the actual version and for
+    # backwards compatibility with the file locations.
+    info[[i]][["version"]] <- results[["version"]][i]
   }
 
   results$info <- info
