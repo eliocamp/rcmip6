@@ -3,7 +3,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
                      metadata = NA,
                      database_file = NA,
                      delay = 0.5, retry = 5,
-                     total_connections = 100L,
+                     total_connections = 6L,
                      host_connections = 6L) {
   out <- structure(vector("list", length(urls)), .Names = urls)
   attempts <- structure(rep(0, length(urls)), .Names = urls)
