@@ -97,7 +97,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
 
 
   fail_fn <- function(err, i) {
-    message <- tr_("Failed: %s with error %s.", basename(files[i]),  err)
+    message <- tr_("Failed: %s \nwith error %s.", basename(files[i]),  err)
 
     retry_maybe(i)
 
