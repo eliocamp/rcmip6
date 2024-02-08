@@ -19,7 +19,7 @@ cmip_download(
 
 \item{root}{Root folder to download and organise the data.}
 
-\item{user, comment}{Optional strings to use when saving the log for each file.}
+\item{user, comment}{Deprecated.}
 
 \item{year_range}{An integer vector of length 2, indicating the start and
 end range of years. Restricts the download of model output with files that

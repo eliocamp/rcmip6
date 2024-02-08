@@ -6,7 +6,7 @@
 #' end range of years. Restricts the download of model output with files that
 #'  include some data within this range of years. Defaults to c(-Inf, Inf) to
 #'  include all possible files
-#' @param user,comment Optional strings to use when saving the log for each file.
+#' @param user,comment Deprecated.
 #' @param check_diskspace Logical indicating whether to check if location has
 #' enough space to download all the requested files.
 #' @param ... Ignored
@@ -22,9 +22,20 @@ cmip_download <- function(results,
                           year_range = c(-Inf, Inf),
                           check_diskspace = TRUE,
                           ...) {
-  if(year_range[1] > year_range[2]) {
-    stop(tr_("The start year cannot be greater than the end year"))
+
+
+  used_deprecated <- c(user = !missing(user),
+                       comment = !missing(comment))
+  if (any(used_deprecated)) {
+    used_deprecated <- paste0(names(used_deprecated)[used_deprecated],
+                              collapse = ", ")
+    warning(tr_("$s have been deprecated and will be ignored.", used_deprecated))
   }
+
+
+    if(year_range[1] > year_range[2]) {
+      stop(tr_("The start year cannot be greater than the end year"))
+    }
   root <- path.expand(root)
 
   # Evaluate these now so that if they involve expressions that can fail,
