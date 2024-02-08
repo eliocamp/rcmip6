@@ -54,3 +54,28 @@ cmip_available_legacy <- function(root = cmip_root_get()) {
 
   return(data)
 }
+
+
+cmip_available_write <- function(results,
+                                 root = cmip_root_get(),
+                                 year_range = c(-Inf, Inf)) {
+
+  # Request metadata and check download necessity
+  if (is.null(results$info)) {
+    results <- cmip_add_info(results)
+  }
+
+  message(tr_("Checking for existing files..."))
+  results <- cmip_add_needs_download(results, root = root,
+                                     year_range = year_range)
+
+  is_requested <- unlist(extract_info_column(results, "is_requested"))
+  needs_download <- unlist(extract_info_column(results, "needs_download"))
+
+  metadata_existing <- flatten_info(results$info)[is_requested & !needs_download]
+
+  file <- cmip_database_file(root = root)
+  jsonlite::write_json(metadata_existing, file, pretty = TRUE)
+
+  return(invisible(file))
+}
