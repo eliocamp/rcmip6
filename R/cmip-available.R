@@ -29,7 +29,7 @@ cmip_available <- function(root = cmip_root_get()) {
     data
   })
 
-  data.table::rbindlist(info)
+  data.table::rbindlist(info, fill = TRUE)
 }
 
 
