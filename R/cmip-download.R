@@ -9,6 +9,8 @@
 #' @param user,comment Deprecated.
 #' @param check_diskspace Logical indicating whether to check if location has
 #' enough space to download all the requested files.
+#' @param download_config a list of arguments to configure the behaviour of
+#' downloads.
 #' @param ... Ignored
 #'
 #' @return
@@ -21,6 +23,7 @@ cmip_download <- function(results,
                           comment = NULL,
                           year_range = c(-Inf, Inf),
                           check_diskspace = TRUE,
+                          download_config = cmip_download_config(),
                           ...) {
   used_deprecated <- c(user = !missing(user),
                        comment = !missing(comment))
@@ -116,7 +119,12 @@ cmip_download <- function(results,
                          files = files[needs_download],
                          sizes = file_size[needs_download],
                          metadata = metadata,
-                         database_file = cmip_database_file(root = root))
+                         database_file = cmip_database_file(root = root),
+                         delay = download_config$delay,
+                         retry = download_config$retry,
+                         total_connections = download_config$total_connections,
+                         host_connections = download_config$host_connections
+                         )
 
 
   out <- split(files[is_requested], ids)
@@ -136,6 +144,35 @@ cmip_download <- function(results,
   return(out)
 
 }
+
+
+#' @param delay delay in seconds between retries. The actual delay adds a bit
+#' of randomness.
+#' @param retry number of retries before giving up on a download.
+#' @param total_connections maximum number of total concurrent connections.
+#' @param host_connections maximum number concurrent connections per host.
+#' @param low_speed_limit,low_speed_time the download will fail if it downloads
+#' at below `low_speed_limit` bytes/second for more than `low_speed_time` seconds.
+#'
+#'
+#' @rdname cmip_download
+#' @export
+cmip_download_config <- function(delay = 0.5,
+                                 retry = 5,
+                                 total_connections = 1,
+                                 host_connections = 1,
+                                 low_speed_limit = 100,
+                                 low_speed_time = 30) {
+
+  list(delay = delay,
+       retry = retry,
+       total_connections = total_connections,
+       host_connections = host_connections,
+       low_speed_limit = low_speed_limit,
+       low_speed_time = low_speed_time)
+
+}
+
 
 filter_list <- function(list, conditions) {
   for (l in seq_along(list)) {

@@ -1,3 +1,4 @@
+
 # From https://github.com/noamross/scrapetools/blob/eb1be9de5db15997669e572cdd4be508919b8438/R/map_curl.R
 map_curl <- function(urls, files = NULL, sizes = NA,
                      metadata = NA,

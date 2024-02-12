@@ -2,6 +2,7 @@
 % Please edit documentation in R/cmip-download.R
 \name{cmip_download}
 \alias{cmip_download}
+\alias{cmip_download_config}
 \title{Downloads CMIP data}
 \usage{
 cmip_download(
@@ -11,7 +12,17 @@ cmip_download(
   comment = NULL,
   year_range = c(-Inf, Inf),
   check_diskspace = TRUE,
+  download_config = cmip_download_config(),
   ...
+)
+
+cmip_download_config(
+  delay = 0.5,
+  retry = 5,
+  total_connections = 1,
+  host_connections = 1,
+  low_speed_limit = 100,
+  low_speed_time = 30
 )
 }
 \arguments{
@@ -29,7 +40,22 @@ include all possible files}
 \item{check_diskspace}{Logical indicating whether to check if location has
 enough space to download all the requested files.}
 
+\item{download_config}{a list of arguments to configure the behaviour of
+downloads.}
+
 \item{...}{Ignored}
+
+\item{delay}{delay in seconds between retries. The actual delay adds a bit
+of randomness.}
+
+\item{retry}{number of retries before giving up on a download.}
+
+\item{total_connections}{maximum number of total concurrent connections.}
+
+\item{host_connections}{maximum number concurrent connections per host.}
+
+\item{low_speed_limit, low_speed_time}{the download will fail if it downloads
+at below \code{low_speed_limit} bytes/second for more than \code{low_speed_time} seconds.}
 }
 \value{
 A list of files.
