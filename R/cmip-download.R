@@ -27,7 +27,7 @@ cmip_download <- function(results,
   if (any(used_deprecated)) {
     used_deprecated <- paste0(names(used_deprecated)[used_deprecated],
                               collapse = ", ")
-    warning(tr_("$s have been deprecated and will be ignored.", used_deprecated))
+    warning(tr_("%s have been deprecated and will be ignored.", used_deprecated))
   }
 
 
