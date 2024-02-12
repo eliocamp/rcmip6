@@ -63,6 +63,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
 
   done_fn <- function(resp, i) {
     resp$content <- NULL  # Remove content to free up memory.
+    out[[i]] <<- resp
 
     ## Sometimes request are completed with bad status
     if (resp$status_code > 200) {
@@ -84,7 +85,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
     }
 
     message = tr_("Successfuly downloaded: %s", basename(files[i]))
-    out[[i]] <<- resp
+
 
     ## Write this file in the database
     database <<- append(database, metadata[i])
@@ -99,6 +100,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
   fail_fn <- function(err, i) {
     message <- tr_("Failed: %swith error %s.", basename(files[i]),  err)
 
+    out[[i]] <- err
     retry_maybe(i)
 
     if (!pb$finished) {

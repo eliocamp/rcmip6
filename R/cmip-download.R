@@ -22,8 +22,6 @@ cmip_download <- function(results,
                           year_range = c(-Inf, Inf),
                           check_diskspace = TRUE,
                           ...) {
-
-
   used_deprecated <- c(user = !missing(user),
                        comment = !missing(comment))
   if (any(used_deprecated)) {
@@ -121,6 +119,8 @@ cmip_download <- function(results,
                          database_file = cmip_database_file(root = root))
 
 
+  out <- split(files[is_requested], ids)
+  attr(out, "status") <- downloaded
   # TODO: I can't do this with the new refactor.
   # # Some instances can fail in one replica but not others,
   # # so we have to list all instances and remove the
@@ -133,7 +133,7 @@ cmip_download <- function(results,
   #   instance_query(failed_instances))
   # }
   # return(invisible(files))
-  return(split(files[is_requested], ids))
+  return(out)
 
 }
 

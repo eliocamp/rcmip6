@@ -86,7 +86,6 @@ test_that("Download works", {
 
   expect_true(all(file.exists(unlist(files))))
   suppressMessages(expect_message(cmip_download(results[1]), "All files"))
-
 })
 
 test_that("cmip_available() works", {
