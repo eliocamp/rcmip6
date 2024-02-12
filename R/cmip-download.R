@@ -123,7 +123,9 @@ cmip_download <- function(results,
                          delay = download_config$delay,
                          retry = download_config$retry,
                          total_connections = download_config$total_connections,
-                         host_connections = download_config$host_connections
+                         host_connections = download_config$host_connections,
+                         low_speed_limit = download_config$low_speed_limit,
+                         low_speed_time = download_config$low_speed_time
                          )
 
 
