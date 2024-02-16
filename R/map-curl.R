@@ -7,7 +7,8 @@ map_curl <- function(urls, files = NULL, sizes = NA,
                      total_connections = 6L,
                      host_connections = 6L,
                      low_speed_limit = 100,
-                     low_speed_time = 30) {
+                     low_speed_time = 30,
+                     options = NULL) {
   out <- structure(vector("list", length(urls)), .Names = urls)
   attempts <- structure(rep(0, length(urls)), .Names = urls)
 
@@ -30,8 +31,10 @@ map_curl <- function(urls, files = NULL, sizes = NA,
 
   make_handle <- function(i) {
     h <- curl::new_handle(url = urls[i])
-    h <- curl::handle_setopt(h, .list = list(low_speed_limit = low_speed_limit,
-                                             low_speed_time = low_speed_time))
+    options <- utils::modifyList(list(low_speed_limit = low_speed_limit,
+                                      low_speed_time = low_speed_time),
+                                 options)
+    h <- curl::handle_setopt(h, .list = options)
     return(h)
   }
 
