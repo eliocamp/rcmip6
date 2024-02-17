@@ -80,9 +80,13 @@ cmip_download <- function(results,
   files <- unlist(info_lapply(results, file_from_info, root = root))
   file_size <- unlist(extract_info_column(results, "size"))
 
-  if (anyDuplicated(files[needs_download])) {
-    stop(tr_("Duplicated files found."))
+  is_duplicated <- duplicated(files[needs_download])
+
+  if (any(is_duplicated)) {
+    warning(tr_("Duplicated files found."))
   }
+
+  needs_download <- needs_download & !is_duplicated
 
   if (sum(is_requested) == 0) {
     warning(tr_("No files within specified year_range."))
