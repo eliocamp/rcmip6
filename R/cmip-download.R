@@ -83,7 +83,7 @@ cmip_download <- function(results,
   is_duplicated <- duplicated(files[needs_download])
 
   if (any(is_duplicated)) {
-    warning(tr_("Duplicated files found."))
+    warning(tr_("%i duplicated files found.", sum(is_duplicated)))
   }
 
   needs_download <- needs_download & !is_duplicated
