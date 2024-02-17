@@ -60,6 +60,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
       # It would be great to add support for resuming the download.
       if (file.exists(files[i])) {
         pb$tick(len = -file.size(files[i]))  # remove downloaded data from progress
+        pb$message(msg = message)
       }
 
       add_job(i)
@@ -90,7 +91,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
       return(NULL)
     }
 
-    message = tr_("Successfuly downloaded: %s", basename(files[i]))
+    message <- tr_("Successfuly downloaded: %s", basename(files[i]))
 
 
     ## Write this file in the database
@@ -104,8 +105,6 @@ map_curl <- function(urls, files = NULL, sizes = NA,
 
 
   fail_fn <- function(err, i) {
-    message <- tr_("Failed: %swith error %s.", basename(files[i]),  err)
-
     out[[i]] <- err
     retry_maybe(i)
 
