@@ -80,10 +80,11 @@ cmip_download <- function(results,
   files <- unlist(info_lapply(results, file_from_info, root = root))
   file_size <- unlist(extract_info_column(results, "size"))
 
-  is_duplicated <- duplicated(files[needs_download])
 
-  if (any(is_duplicated)) {
-    warning(tr_("%i duplicated files found.", sum(is_duplicated)))
+  is_duplicated <- duplicated(files)
+
+  if (any(is_duplicated[needs_download])) {
+    warning(tr_("%i duplicated files found.", sum(is_duplicated[needs_download])))
   }
 
   needs_download <- needs_download & !is_duplicated
