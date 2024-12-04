@@ -88,6 +88,7 @@ cmip_download <- function(results,
   }
 
   needs_download <- needs_download & !is_duplicated
+  is_requested <- is_requested & !is_duplicated
 
   if (sum(is_requested) == 0) {
     warning(tr_("No files within specified year_range."))
