@@ -40,7 +40,6 @@ cmip_search <- function(query) {
 
 columns_to_vector <- function(results) {
   to_vector <- c("activity_drs",
-                 "activity_id",
                  "cf_standard_name",
                  "citation_url",
                  "data_specs_version",

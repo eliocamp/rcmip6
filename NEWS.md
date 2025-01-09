@@ -13,6 +13,7 @@
 ## Bugfixes
 
 -   Fixed error when a download fails without saving any data.
+-   The `activity_id` column is now kept as a list column. This is because some records belong to more than one `activity_id`. (thanks @paocorrales, #18)
 
 # rcmip6 0.0.2
 
