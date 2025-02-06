@@ -58,7 +58,7 @@ columns_to_vector <- function(results) {
                  "pid",
                  "product",
                  "project",
-                 "realm",
+                 # "realm",
                  "source_id",
                  "sub_experiment_id",
                  "table_id",
