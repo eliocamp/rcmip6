@@ -140,7 +140,7 @@ map_curl <- function(urls, files = NULL, sizes = NA,
   }
 
   curl::multi_run(timeout = Inf, poll = FALSE, pool = map_pool)
-
+browser()
   pb$terminate()
   if (!is.null(names(urls))) {
     names(out) <- names(urls)
