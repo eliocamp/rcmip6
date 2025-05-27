@@ -1,14 +1,14 @@
 
 query <- list(
+  project       = "CMIP6",
   type          = "Dataset",
   latest        = "true",
-  mip_era       = "CMIP6",
   frequency     = "mon",
-  variable_id   = "tosga",
-  experiment_id = "piControl",
-  project       = "CMIP6"
+  variable_id   = "co2mass",
+  experiment_id = "historical"
 )
-query_url <- "http://esgf-node.llnl.gov/esg-search/search/?offset=0&limit=10&type=Dataset&latest=true&mip_era=CMIP6&experiment_id=piControl&frequency=mon&variable_id=tosga&project=CMIP6&facets=mip_era%2Cactivity_id%2Cproduct%2Csource_id%2Cinstitution_id%2Csource_type%2Cnominal_resolution%2Cexperiment_id%2Csub_experiment_id%2Cvariant_label%2Cgrid_label%2Ctable_id%2Cfrequency%2Crealm%2Cvariable_id%2Ccf_standard_name%2Cdata_node&format=application%2Fsolr%2Bjson"
+
+query_url <- "https://aims2.llnl.gov/proxy/search?project=CMIP6&offset=0&limit=10&type=Dataset&format=application%2Fsolr%2Bjson&facets=activity_id%2C+data_node%2C+source_id%2C+institution_id%2C+source_type%2C+experiment_id%2C+sub_experiment_id%2C+nominal_resolution%2C+variant_label%2C+grid_label%2C+table_id%2C+frequency%2C+realm%2C+variable_id%2C+cf_standard_name&latest=true&query=*&activity_id=CMIP&experiment_id=historical&frequency=mon&variable_id=co2mass"
 
 root <- tempfile()
 dir.create(root)
