@@ -25,7 +25,7 @@ cmip_urls <- function(results) {
 }
 
 cmip_add_info <- function(results) {
-  urls <- paste0("https://aims2.llnl.gov/metagrid-backend/proxy/search?dataset_id=",
+  urls <- paste0("https://aims2.llnl.gov/proxy/search?dataset_id=",
                  utils::URLencode(results$id),
                  "&format=application%2Fsolr%2Bjson&limit=9999&offset=0&type=File&")
 
