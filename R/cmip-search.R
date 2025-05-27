@@ -31,8 +31,8 @@ cmip_search <- function(query) {
     paste0(q, collapse = ",")
   })
 
-  search_results <- jsonlite::parse_json(httr::content(httr::GET("https://esgf-node.llnl.gov/esg-search/search",
-                                                                 query = query)),
+  search_results <- jsonlite::parse_json(httr::content(httr::GET("https://aims2.llnl.gov/proxy/search",
+                                                                 query = query), encoding = "UTF-8"),
                                          simplifyVector = TRUE)
   search_results <- data.table::as.data.table(search_results$response$docs)
   columns_to_vector(search_results)[]

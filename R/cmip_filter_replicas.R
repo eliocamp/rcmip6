@@ -21,7 +21,7 @@ cmip_filter_replicas <- function(results) {
 
 
 get_data_node <- function (timeout = 3) {
-  status_url  <- "https://aims2.llnl.gov/metagrid-backend/proxy/status"
+  status_url  <- "https://aims2.llnl.gov/proxy/status"
   data <- jsonlite::read_json(status_url)$data$result
 
   data <- lapply(data, function(x) {
