@@ -1,12 +1,11 @@
 # URL to list works
 
     query <- list(
+      project       = "CMIP6",
       type          = "Dataset",
       latest        = "true",
-      mip_era       = "CMIP6",
       frequency     = "mon",
-      variable_id   = "tosga",
-      experiment_id = "piControl",
-      project       = "CMIP6"
+      variable_id   = "co2mass",
+      experiment_id = "historical"
     )
 
