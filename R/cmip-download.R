@@ -139,8 +139,15 @@ cmip_download <- function(results,
                          options = list(...)
                          )
 
+  was_downloaded <- file.exists(files[is_requested])
 
-  out <- split(files[is_requested], ids)
+  if (all(!was_downloaded)) {
+    warning(tr_("All downloads failed."))
+  } else if (any(!was_downloaded)) {
+    warning(tr_("Some downloads failed."))
+  }
+
+  out <- split(files[is_requested][was_downloaded], ids[was_downloaded])
   attr(out, "status") <- downloaded
   # TODO: I can't do this with the new refactor.
   # # Some instances can fail in one replica but not others,
