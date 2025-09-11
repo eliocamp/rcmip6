@@ -31,9 +31,20 @@ cmip_search <- function(query) {
     paste0(q, collapse = ",")
   })
 
-  search_results <- jsonlite::parse_json(httr::content(httr::GET("https://aims2.llnl.gov/proxy/search",
-                                                                 query = query), encoding = "UTF-8"),
-                                         simplifyVector = TRUE)
+  response <- httr::GET(
+    "https://aims2.llnl.gov/proxy/search",
+    query = query
+  )
+
+  if (httr::http_error(response)) {
+    stop(glue::glue(tr_("Search failed with status {response$status}.")))
+  }
+
+  search_results <- jsonlite::parse_json(
+    httr::content(response, encoding = "UTF-8"),
+    simplifyVector = TRUE
+  )
+
   search_results <- data.table::as.data.table(search_results$response$docs)
   columns_to_vector(search_results)[]
 }
@@ -41,36 +52,36 @@ cmip_search <- function(query) {
 columns_to_vector <- function(results) {
   to_vector <- c(
     "activity_drs",
-                 "cf_standard_name",
-                 "citation_url",
-                 "data_specs_version",
-                 "dataset_id_template_",
-                 "directory_format_template_",
-                 "experiment_id",
-                 "experiment_title",
-                 "frequency",
-                 "further_info_url",
+    "cf_standard_name",
+    "citation_url",
+    "data_specs_version",
+    "dataset_id_template_",
+    "directory_format_template_",
+    "experiment_id",
+    "experiment_title",
+    "frequency",
+    "further_info_url",
     "grid",
     "grid_label",
-                 "institution_id",
-                 "member_id",
-                 "mip_era",
-                 "model_cohort",
-                 "nominal_resolution",
-                 "pid",
-                 "product",
-                 "project",
-                 # "realm",
-                 "source_id",
-                 "sub_experiment_id",
-                 "table_id",
-                 "variable",
-                 "variable_id",
-                 "variable_long_name",
-                 "variable_units",
-                 "variant_label",
-                 "geo_units",
-                 "branch_method",
+    "institution_id",
+    "member_id",
+    "mip_era",
+    "model_cohort",
+    "nominal_resolution",
+    "pid",
+    "product",
+    "project",
+    # "realm",
+    "source_id",
+    "sub_experiment_id",
+    "table_id",
+    "variable",
+    "variable_id",
+    "variable_long_name",
+    "variable_units",
+    "variant_label",
+    "geo_units",
+    "branch_method",
     "short_description"
   )
 
@@ -117,8 +128,8 @@ list_pretty_format <- function(list) {
   elements <- lapply(seq_along(list), function(i) {
     paste0(
       "  ",
-           formatC(names(list)[i], width = -max_n, flag = " "),
-           " = \"",
+      formatC(names(list)[i], width = -max_n, flag = " "),
+      " = \"",
       list[[i]],
       "\""
     )
@@ -126,7 +137,7 @@ list_pretty_format <- function(list) {
 
   paste0(
     "query <- list(\n",
-         paste0(unlist(elements), collapse = ",\n"),
+    paste0(unlist(elements), collapse = ",\n"),
     "\n)\n"
   )
 }
@@ -150,9 +161,9 @@ cmip_simplify <- function(results) {
 
   vars <- c(
     strsplit(cmip6_folder_template, "/")[[1]],
-            "variable_long_name",
-            "datetime_start",
-            "datetime_stop",
+    "variable_long_name",
+    "datetime_start",
+    "datetime_stop",
     "nominal_resolution"
   )
 
