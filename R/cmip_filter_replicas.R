@@ -20,13 +20,15 @@ cmip_filter_replicas <- function(results) {
 }
 
 
-get_data_node <- function (timeout = 3) {
-  status_url  <- "https://aims2.llnl.gov/proxy/status"
+get_data_node <- function(timeout = 3) {
+  status_url <- "https://aims2.llnl.gov/proxy/status"
   data <- jsonlite::read_json(status_url)$data$result
 
   data <- lapply(data, function(x) {
-    data.table::data.table(data_node = x$metric$instance,
-                           online = x$value[[2]] == 1)
+    data.table::data.table(
+      data_node = x$metric$instance,
+      online = x$value[[2]] == 1
+    )
   })
   data.table::rbindlist(data)
 }

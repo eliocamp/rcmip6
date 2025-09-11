@@ -1,15 +1,20 @@
-cmip_add_needs_download <- function(results,
-                                    root = cmip_root_get(),
-                                    year_range = c(-Inf, Inf)) {
+cmip_add_needs_download <- function(
+  results,
+  root = cmip_root_get(),
+  year_range = c(-Inf, Inf)
+) {
   if (is.null(results$info)) {
     infos <- cmip_add_info(results)$info
   } else {
     infos <- results$info
   }
 
-  infos <- furrr::future_map(infos, info_add_needs_download,
-                             root = root,
-                             year_range = year_range)
+  infos <- furrr::future_map(
+    infos,
+    info_add_needs_download,
+    root = root,
+    year_range = year_range
+  )
 
   results$info <- infos
   return(results)
@@ -19,26 +24,35 @@ cmip_add_needs_download <- function(results,
 # is_requested: whether the user requested that file (currently depends only
 # on the date range)
 # needs_download: whether the file needs to be downloaed.
-info_add_needs_download <- function(info,
-                                    root = cmip_root_get(),
-                                    year_range = c(-Inf, Inf)) {
+info_add_needs_download <- function(
+  info,
+  root = cmip_root_get(),
+  year_range = c(-Inf, Inf)
+) {
   overlaps <- year_range_overlaps(info$title, year_range = year_range)
   file <- file.path(result_dir(info, root = root), info$title)
   exists <- file.exists(file)
 
-  matches_checksum <- vapply(seq_along(info$title), function(i) {
-    if (overlaps[i] && exists[i]) {  # Only check if necessary.
-      matches <- checksum_matches(file[i],
-                                  checksum_type = tolower(info$checksum_type[[i]]),
-                                  checksum = info$checksum[[i]])
-      if (isTRUE(matches)) {
-        message(tr_("Skipping %s (matching checksum).", file[i]))
+  matches_checksum <- vapply(
+    seq_along(info$title),
+    function(i) {
+      if (overlaps[i] && exists[i]) {
+        # Only check if necessary.
+        matches <- checksum_matches(
+          file[i],
+          checksum_type = tolower(info$checksum_type[[i]]),
+          checksum = info$checksum[[i]]
+        )
+        if (isTRUE(matches)) {
+          message(tr_("Skipping %s (matching checksum).", file[i]))
+        }
+        return(matches)
+      } else {
+        return(FALSE)
       }
-      return(matches)
-    } else {
-      return(FALSE)
-    }
-  }, logical(1))
+    },
+    logical(1)
+  )
 
   info$is_requested <- overlaps
   info$needs_download <- overlaps & !matches_checksum
@@ -62,5 +76,3 @@ checksum_matches <- function(file, checksum_type, checksum) {
 
   return(local_checksum == checksum)
 }
-
-

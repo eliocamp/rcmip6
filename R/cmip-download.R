@@ -17,26 +17,31 @@
 #' A list of files.
 #'
 #' @export
-cmip_download <- function(results,
-                          root = cmip_root_get(),
-                          user = Sys.info()[["user"]],
-                          comment = NULL,
-                          year_range = c(-Inf, Inf),
-                          check_diskspace = TRUE,
-                          download_config = cmip_download_config(),
-                          ...) {
-  used_deprecated <- c(user = !missing(user),
-                       comment = !missing(comment))
+cmip_download <- function(
+  results,
+  root = cmip_root_get(),
+  user = Sys.info()[["user"]],
+  comment = NULL,
+  year_range = c(-Inf, Inf),
+  check_diskspace = TRUE,
+  download_config = cmip_download_config(),
+  ...
+) {
+  used_deprecated <- c(user = !missing(user), comment = !missing(comment))
   if (any(used_deprecated)) {
-    used_deprecated <- paste0(names(used_deprecated)[used_deprecated],
-                              collapse = ", ")
-    warning(tr_("%s have been deprecated and will be ignored.", used_deprecated))
+    used_deprecated <- paste0(
+      names(used_deprecated)[used_deprecated],
+      collapse = ", "
+    )
+    warning(tr_(
+      "%s have been deprecated and will be ignored.",
+      used_deprecated
+    ))
   }
 
-
-    if(year_range[1] > year_range[2]) {
-      stop(tr_("The start year cannot be greater than the end year"))
-    }
+  if (year_range[1] > year_range[2]) {
+    stop(tr_("The start year cannot be greater than the end year"))
+  }
   root <- path.expand(root)
 
   # Evaluate these now so that if they involve expressions that can fail,
@@ -55,14 +60,17 @@ cmip_download <- function(results,
   }
 
   message(tr_("Checking for existing files..."))
-  results <- cmip_add_needs_download(results, root = root,
-                                     year_range = year_range)
+  results <- cmip_add_needs_download(
+    results,
+    root = root,
+    year_range = year_range
+  )
 
   # Should download?
   is_requested <- extract_info_column(results, "is_requested")
   needs_download <- extract_info_column(results, "needs_download")
 
-
+  browser()
   # These variables are lists of length nrow(requests)
   # I need to flatten the list to vectorise and paralellise
   # but then I want to pack the results back into the same structure
@@ -80,11 +88,13 @@ cmip_download <- function(results,
   files <- unlist(info_lapply(results, file_from_info, root = root))
   file_size <- unlist(extract_info_column(results, "size"))
 
-
   is_duplicated <- duplicated(files)
 
   if (any(is_duplicated[needs_download])) {
-    warning(tr_("%i duplicated files found.", sum(is_duplicated[needs_download])))
+    warning(tr_(
+      "%i duplicated files found.",
+      sum(is_duplicated[needs_download])
+    ))
   }
 
   needs_download <- needs_download & !is_duplicated
@@ -103,41 +113,51 @@ cmip_download <- function(results,
   if (check_diskspace) {
     available_disk <- ps::ps_disk_usage(root)$available
     if (sum(file_size) > available_disk) {
-      stop(tr_(c("Not enough disk space. Need to download %s by %s avaiable.\n",
-                 "Use `check_diskspace = FALSE` to skip this check."),
-               format_bytes(sum(file_size)),
-               format_bytes(available_disk)))
+      stop(tr_(
+        c(
+          "Not enough disk space. Need to download %s by %s avaiable.\n",
+          "Use `check_diskspace = FALSE` to skip this check."
+        ),
+        format_bytes(sum(file_size)),
+        format_bytes(available_disk)
+      ))
     }
   }
 
-
   if (sum(needs_download) != sum(is_requested)) {
-    message(tr_("Skipping, %i files already downloaded.", sum(is_requested) - sum(needs_download)))
+    message(tr_(
+      "Skipping, %i files already downloaded.",
+      sum(is_requested) - sum(needs_download)
+    ))
   }
 
   # Create all folders
-  sink <- vapply(unique(dirname(files)[needs_download]),
-                 dir.create,
-                 FUN.VALUE = numeric(1),
-                 recursive = TRUE, showWarnings = FALSE)
+  sink <- vapply(
+    unique(dirname(files)[needs_download]),
+    dir.create,
+    FUN.VALUE = numeric(1),
+    recursive = TRUE,
+    showWarnings = FALSE
+  )
   metadata <- flatten_info(results$info)[needs_download]
   metadata$is_requested <- NULL
   metadata$needs_download <- NULL
 
   message(tr_("Downloading..."))
-  downloaded <- map_curl(urls = urls[needs_download],
-                         files = files[needs_download],
-                         sizes = file_size[needs_download],
-                         metadata = metadata,
-                         database_file = cmip_database_file(root = root),
-                         delay = download_config$delay,
-                         retry = download_config$retry,
-                         total_connections = download_config$total_connections,
-                         host_connections = download_config$host_connections,
-                         low_speed_limit = download_config$low_speed_limit,
-                         low_speed_time = download_config$low_speed_time,
-                         options = list(...)
-                         )
+  downloaded <- map_curl(
+    urls = urls[needs_download],
+    files = files[needs_download],
+    sizes = file_size[needs_download],
+    metadata = metadata,
+    database_file = cmip_database_file(root = root),
+    delay = download_config$delay,
+    retry = download_config$retry,
+    total_connections = download_config$total_connections,
+    host_connections = download_config$host_connections,
+    low_speed_limit = download_config$low_speed_limit,
+    low_speed_time = download_config$low_speed_time,
+    options = list(...)
+  )
 
   was_downloaded <- file.exists(files[is_requested])
 
@@ -162,7 +182,6 @@ cmip_download <- function(results,
   # }
   # return(invisible(files))
   return(out)
-
 }
 
 
@@ -177,20 +196,22 @@ cmip_download <- function(results,
 #'
 #' @rdname cmip_download
 #' @export
-cmip_download_config <- function(delay = 0.5,
-                                 retry = 5,
-                                 total_connections = 1,
-                                 host_connections = 1,
-                                 low_speed_limit = 100,
-                                 low_speed_time = 30) {
-
-  list(delay = delay,
-       retry = retry,
-       total_connections = total_connections,
-       host_connections = host_connections,
-       low_speed_limit = low_speed_limit,
-       low_speed_time = low_speed_time)
-
+cmip_download_config <- function(
+  delay = 0.5,
+  retry = 5,
+  total_connections = 1,
+  host_connections = 1,
+  low_speed_limit = 100,
+  low_speed_time = 30
+) {
+  list(
+    delay = delay,
+    retry = retry,
+    total_connections = total_connections,
+    host_connections = host_connections,
+    low_speed_limit = low_speed_limit,
+    low_speed_time = low_speed_time
+  )
 }
 
 
@@ -229,14 +250,10 @@ result_dir <- function(info, root = cmip_root_get()) {
     template <- cmip5_folder_template
   }
 
-  dir <- glue::glue_data(info,
-                         template,
-                         .open = "%(",
-                         .close = ")s")
+  dir <- glue::glue_data(info, template, .open = "%(", .close = ")s")
 
   dir
 }
-
 
 
 #' Computes the total size of a search result in Mb.
@@ -244,7 +261,7 @@ result_dir <- function(info, root = cmip_root_get()) {
 #' @inheritParams cmip_download
 #' @export
 cmip_size <- function(results) {
-  res <- sum(results$size)/1024/1024
+  res <- sum(results$size) / 1024 / 1024
   class(res) <- c("cmip_size", class(res))
   res
 }
@@ -257,17 +274,14 @@ print.cmip_size <- function(x, ...) {
 
 
 cmip_database_file <- function(root = cmip_root_get()) {
-  file <- paste0(format(Sys.time(), format = "%Y-%m-%d_%H-%M-%S"), "_rcmip6.json")
+  file <- paste0(
+    format(Sys.time(), format = "%Y-%m-%d_%H-%M-%S"),
+    "_rcmip6.json"
+  )
   file.path(root, file)
 }
 
 cmip_database_write <- function(database, root = cmip_root_get()) {
-
   jsonlite::write_json(database, cmip_database_file)
-
 }
-cmip_database_read <- function(root = cmip_root_get()) {
-
-
-
-}
+cmip_database_read <- function(root = cmip_root_get()) {}

@@ -9,3 +9,5 @@ R/cmip6.R
 ^\.github$
 ^tests/testthat/new_database$
 ^tests/testthat/old_database$
+^\.vscode$
+^[.]?air[.]toml$
