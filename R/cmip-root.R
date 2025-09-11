@@ -12,21 +12,22 @@
 cmip_root_set <- function(root, mode = "default") {
   options(RCMIP6_ROOT = path.expand(root))
 
-  mode <- switch(mode,
-                 shared = "0000",
-                 private = "7",
-                 default = Sys.umask(NA),
-                 mode)
+  mode <- switch(
+    mode,
+    shared = "0000",
+    private = "7",
+    default = Sys.umask(NA),
+    mode
+  )
   options(RCMIP6_ROOT_MODE = mode)
-
 }
 
 #' @export
 #' @rdname cmip_root_set
 cmip_root_get <- function() {
   root <- getOption("RCMIP6_ROOT")
-  if (is.null(root)) stop(tr_("Root folder not specified. Use cmip_root_set()."))
+  if (is.null(root)) {
+    stop(tr_("Root folder not specified. Use cmip_root_set()."))
+  }
   path.expand(root)
 }
-
-

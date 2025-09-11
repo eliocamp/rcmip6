@@ -1,10 +1,9 @@
-
 query <- list(
-  project       = "CMIP6",
-  type          = "Dataset",
-  latest        = "true",
-  frequency     = "mon",
-  variable_id   = "co2mass",
+  project = "CMIP6",
+  type = "Dataset",
+  latest = "true",
+  frequency = "mon",
+  variable_id = "co2mass",
   experiment_id = "historical"
 )
 
@@ -19,7 +18,7 @@ test_that("Search returns results", {
   expect_true(nrow(results) > 0)
 })
 
-test_that("URLs obtained from search results",  {
+test_that("URLs obtained from search results", {
   expect_silent(urls <- cmip_urls(results[58:63]))
   expect_length(urls, nrow(results[58:63]))
   expect_type(urls, "list")
@@ -30,13 +29,12 @@ test_that("URL to list works", {
   # I don't test that query == cmip_url_to_list(query_url) because
   # slight discrepancies are not important. What's important is that they
   # are equivalent queries.
-  expect_equal(cmip_search(cmip_url_to_list(query_url)),
-               results)
+  expect_equal(cmip_search(cmip_url_to_list(query_url)), results)
 
   expect_snapshot_output(cat(list_pretty_format(query)))
 })
 
-test_that("search includes replicas by default",  {
+test_that("search includes replicas by default", {
   expect_true(any(results[, .N, by = instance_id][["N"]] > 1))
 })
 
@@ -49,8 +47,10 @@ test_that("cmip_filter_replicas works", {
 
 
 test_that("cmip_search interprets character vectors", {
-  instances_query <- c("CMIP6.CMIP.CNRM-CERFACS.CNRM-ESM2-1.historical.r6i1p1f2.Omon.tos.gn.v20200117",
-                       "CMIP6.CMIP.CNRM-CERFACS.CNRM-ESM2-1.historical.r11i1p1f2.Omon.tos.gn.v20200408")
+  instances_query <- c(
+    "CMIP6.CMIP.CNRM-CERFACS.CNRM-ESM2-1.historical.r6i1p1f2.Omon.tos.gn.v20200117",
+    "CMIP6.CMIP.CNRM-CERFACS.CNRM-ESM2-1.historical.r11i1p1f2.Omon.tos.gn.v20200408"
+  )
   instances_results <- unique(cmip_search(instances_query)[["instance_id"]])
 
   expect_equal(sort(instances_query), sort(instances_results))
@@ -59,11 +59,9 @@ test_that("cmip_search interprets character vectors", {
 
 test_that("cmip_simplify works", {
   expect_s3_class(cmip_simplify(results), "data.table")
-  expect_equal(results,
-               cmip_unsimplify(cmip_simplify(results)))
+  expect_equal(results, cmip_unsimplify(cmip_simplify(results)))
 
-  expect_equal(results[1:4],
-               cmip_unsimplify(cmip_simplify(results)[1:4]))
+  expect_equal(results[1:4], cmip_unsimplify(cmip_simplify(results)[1:4]))
 
   x <- capture.output(print(cmip_simplify(results)))
   expect_false(any(grepl("full_info", x)))
@@ -99,36 +97,39 @@ test_that("cmip_available() works", {
 test_that("Failed instances give proper message", {
   failed <- results[["instance_id"]][1:2]
   expect_error(failed_query <- instance_query(failed), NA)
-  expect_s3_class(failed_results <- eval(parse(text = failed_query)), "data.table")
+  expect_s3_class(
+    failed_results <- eval(parse(text = failed_query)),
+    "data.table"
+  )
   expect_true(nrow(failed_results) > 0)
 })
 
 
-
 test_that("year_range argument in cmip_download works", {
-
   expect_error(cmip_root_set(tempfile()), NA)
   dir.create(cmip_root_get())
   ########
   query <- list(
-    type          = "Dataset",
-    replica       = "true", # esg-dn2.nsc.liu.se Is down... again
-    latest        = "true",
-    variable_id   = "tos",
-    project       = "CMIP6",
-    grid_label    = "gn",
-    frequency     = "mon",
+    type = "Dataset",
+    replica = "true", # esg-dn2.nsc.liu.se Is down... again
+    latest = "true",
+    variable_id = "tos",
+    project = "CMIP6",
+    grid_label = "gn",
+    frequency = "mon",
     # table_id      = "Oday",
     experiment_id = "historical",
-    member_id     = "r1i1p1f1",
-    source_id     = "EC-Earth3" # This one has one file per year, ideal to test the range function
+    member_id = "r1i1p1f1",
+    source_id = "EC-Earth3" # This one has one file per year, ideal to test the range function
   )
-
 
   results <- cmip_search(query) %>%
     head(1)
   expect_error(files <- cmip_download(results, year_range = c(1993, 1992)))
-  suppressMessages(expect_type(files <- cmip_download(results, year_range = c(1993, 1994)), "list"))
+  suppressMessages(expect_type(
+    files <- cmip_download(results, year_range = c(1993, 1994)),
+    "list"
+  ))
 
   expect_length(files, 1)
   expect_length(files[[1]], 2)

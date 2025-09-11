@@ -22,10 +22,10 @@ cmip_search <- function(query) {
       instance_id = query
     )
   }
-
-  query$format  <- "application/solr+json"
-  query$limit   <- "9999"
-  query$offset  <- "0"
+  query$format <- "application/solr+json"
+  query$limit <- "9999"
+  query$offset <- "0"
+  # query$type <- "File"
 
   query <- lapply(query, function(q) {
     paste0(q, collapse = ",")
@@ -39,7 +39,8 @@ cmip_search <- function(query) {
 }
 
 columns_to_vector <- function(results) {
-  to_vector <- c("activity_drs",
+  to_vector <- c(
+    "activity_drs",
                  "cf_standard_name",
                  "citation_url",
                  "data_specs_version",
@@ -49,7 +50,8 @@ columns_to_vector <- function(results) {
                  "experiment_title",
                  "frequency",
                  "further_info_url",
-                 "grid", "grid_label",
+    "grid",
+    "grid_label",
                  "institution_id",
                  "member_id",
                  "mip_era",
@@ -69,7 +71,8 @@ columns_to_vector <- function(results) {
                  "variant_label",
                  "geo_units",
                  "branch_method",
-                 "short_description")
+    "short_description"
+  )
 
   for (col in to_vector) {
     vec <- results[[col]]
@@ -89,7 +92,9 @@ cmip_info <- function(results) {
 
   n_replicas <- nrow(results[, .N, by = instance_id][N > 1])
 
-  string <- tr_("Found {nrow(results_filter)} results (with {n_replicas} replicas) totalling {round(cmip_size(results_filter))}Mb.")
+  string <- tr_(
+    "Found {nrow(results_filter)} results (with {n_replicas} replicas) totalling {round(cmip_size(results_filter))}Mb."
+  )
 
   glue::glue(string)
 }
@@ -110,15 +115,20 @@ list_pretty_format <- function(list) {
   max_n <- max(vapply(names(list), nchar, 0))
 
   elements <- lapply(seq_along(list), function(i) {
-    paste0("  ",
+    paste0(
+      "  ",
            formatC(names(list)[i], width = -max_n, flag = " "),
            " = \"",
-           list[[i]], "\"")
+      list[[i]],
+      "\""
+    )
   })
 
-  paste0("query <- list(\n",
+  paste0(
+    "query <- list(\n",
          paste0(unlist(elements), collapse = ",\n"),
-         "\n)\n")
+    "\n)\n"
+  )
 }
 
 
@@ -138,16 +148,20 @@ cmip_simplify <- function(results) {
   cmip6_folder_template <- gsub("\\)s", "", cmip6_folder_template)
   columns <- colnames(results)
 
-  vars <- c(strsplit(cmip6_folder_template, "/")[[1]],
+  vars <- c(
+    strsplit(cmip6_folder_template, "/")[[1]],
             "variable_long_name",
             "datetime_start",
             "datetime_stop",
-            "nominal_resolution")
+    "nominal_resolution"
+  )
 
   vars <- setdiff(vars, "root")
   simple <- results[, vars, with = FALSE]
-  simple$full_info <- split(results[, -vars, with = FALSE],
-                            seq_len(nrow(results)))
+  simple$full_info <- split(
+    results[, -vars, with = FALSE],
+    seq_len(nrow(results))
+  )
   class(simple) <- c("cmip_simple", class(simple))
   attr(simple, "column") <- columns
   simple
@@ -159,8 +173,7 @@ cmip_unsimplify <- function(data) {
   full_info <- NULL
   columns <- attr(data, "column", exact = TRUE)
   full_info <- data.table::rbindlist(data$full_info)
-  data <- cbind(data.table::copy(data)[, full_info := NULL],
-                full_info)
+  data <- cbind(data.table::copy(data)[, full_info := NULL], full_info)
   data[, columns, with = FALSE]
 }
 

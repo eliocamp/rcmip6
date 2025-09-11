@@ -25,9 +25,11 @@ cmip_urls <- function(results) {
 }
 
 cmip_add_info <- function(results) {
-  urls <- paste0("https://aims2.llnl.gov/proxy/search?dataset_id=",
-                 utils::URLencode(results$id),
-                 "&format=application%2Fsolr%2Bjson&limit=9999&offset=0&type=File&")
+  urls <- paste0(
+    "https://aims2.llnl.gov/proxy/search?dataset_id=",
+    utils::URLencode(results$id),
+    "&format=application%2Fsolr%2Bjson&limit=9999&offset=0&type=File&"
+  )
 
   files <- file.path(tempdir(), make.unique(results$title))
 
@@ -48,9 +50,14 @@ cmip_add_info <- function(results) {
   ## Info has almost the same information than results and it's used for storage
   ## Results do have some other columns, add them just in case.
   for (i in seq_along(info)) {
-    missing_columns <- colnames(results)[!(colnames(results) %in% colnames(info[[i]]))]
-    info[[i]][missing_columns] <- lapply(results[i, missing_columns, with = FALSE],
-                                         rep, times = nrow(info[[i]]))
+    missing_columns <- colnames(results)[
+      !(colnames(results) %in% colnames(info[[i]]))
+    ]
+    info[[i]][missing_columns] <- lapply(
+      results[i, missing_columns, with = FALSE],
+      rep,
+      times = nrow(info[[i]])
+    )
 
     # The version that comes in the info is always "1", for some reason.
     # I use the results version because it's the actual version and for
@@ -76,11 +83,13 @@ multi_download_retry <- function(urls, destfiles, retry = 5) {
 
   to_retry <- res[res$status_code != 200, ]
   tries <- 1
-  while(tries < retry & nrow(to_retry) > 0) {
+  while (tries < retry & nrow(to_retry) > 0) {
     N <- nrow(to_retry[to_retry$status_code != 0, ])
     message(tr_("%s downloads failed. Retrying...", N))
-    res[res$status_code != 200, ] <- curl::multi_download(urls = to_retry$url,
-                                                          destfiles = to_retry$destfile)
+    res[res$status_code != 200, ] <- curl::multi_download(
+      urls = to_retry$url,
+      destfiles = to_retry$destfile
+    )
     to_retry <- res[res$status_code != 200, ]
     tries <- tries + 1
   }
