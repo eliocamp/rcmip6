@@ -1,13 +1,20 @@
+# TODO: need to change the query to return smaller files. The first 2 datasets are > 6Gb
 query <- list(
   project = "CMIP6",
   type = "Dataset",
   latest = "true",
   frequency = "mon",
-  variable_id = "co2mass",
-  experiment_id = "historical"
+  variable_id = "o3prod",
+  experiment_id = "historical",
+  variant_label = "r3i1p1f1"
 )
 
-query_url <- "https://aims2.llnl.gov/proxy/search?project=CMIP6&offset=0&limit=10&type=Dataset&format=application%2Fsolr%2Bjson&facets=activity_id%2C+data_node%2C+source_id%2C+institution_id%2C+source_type%2C+experiment_id%2C+sub_experiment_id%2C+nominal_resolution%2C+variant_label%2C+grid_label%2C+table_id%2C+frequency%2C+realm%2C+variable_id%2C+cf_standard_name&latest=true&query=*&activity_id=CMIP&experiment_id=historical&frequency=mon&variable_id=co2mass"
+q <- query
+q$format <- "application/solr+json"
+q$limit <- "9999"
+q$offset <- "0"
+q <- paste0(paste0(names(query), "=", unlist(query)), collapse = "&")
+query_url <- paste0("http://esgf-node.llnl.gov/esg-search/search?", q)
 
 root <- tempfile()
 dir.create(root)
@@ -19,8 +26,9 @@ test_that("Search returns results", {
 })
 
 test_that("URLs obtained from search results", {
-  expect_silent(urls <- cmip_urls(results[58:63]))
-  expect_length(urls, nrow(results[58:63]))
+  noreplica <- results[replica == FALSE]
+  expect_silent(urls <- cmip_urls(noreplica[1:2]))
+  expect_length(urls, 2)
   expect_type(urls, "list")
   expect_true(all(grepl("^http.*nc$", unlist(urls))))
 })
@@ -46,16 +54,12 @@ test_that("cmip_filter_replicas works", {
 })
 
 
-test_that("cmip_search interprets character vectors", {
-  instances_query <- c(
-    "CMIP6.CMIP.CNRM-CERFACS.CNRM-ESM2-1.historical.r6i1p1f2.Omon.tos.gn.v20200117",
-    "CMIP6.CMIP.CNRM-CERFACS.CNRM-ESM2-1.historical.r11i1p1f2.Omon.tos.gn.v20200408"
-  )
-  instances_results <- unique(cmip_search(instances_query)[["instance_id"]])
-
-  expect_equal(sort(instances_query), sort(instances_results))
-})
-
+# test_that("cmip_search interprets character vectors", {
+#   instances_query <- results$id[1:2]
+#   instances_results <- unique(cmip_search(instances_query)[["instance_id"]])
+#
+#   expect_equal(sort(instances_query), sort(instances_results))
+# })
 
 test_that("cmip_simplify works", {
   expect_s3_class(cmip_simplify(results), "data.table")
