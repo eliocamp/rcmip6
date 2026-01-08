@@ -1,4 +1,6 @@
 # TODO: need to change the query to return smaller files. The first 2 datasets are > 6Gb
+
+testthat::skip_on_ci()
 query <- list(
   project = "CMIP6",
   type = "Dataset",
