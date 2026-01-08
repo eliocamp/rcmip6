@@ -4,9 +4,8 @@ query <- list(
   type = "Dataset",
   latest = "true",
   frequency = "mon",
-  variable_id = "o3prod",
-  experiment_id = "historical",
-  variant_label = "r3i1p1f1"
+  variable_id = "co2mass",
+  experiment_id = "historical"
 )
 
 q <- query
