@@ -27,7 +27,7 @@ is_online <- function(nodes) {
 
 is_online_one <- function(node) {
   # Some nodes just fail to resolve and they throw an error
-  response <- try(httr::HEAD(node), silent = TRUE)
+  response <- try(httr::HEAD(node, httr::timeout(10)), silent = TRUE)
 
   if (inherits(response, "try-error")) {
     return(FALSE)
