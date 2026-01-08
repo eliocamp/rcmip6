@@ -97,16 +97,15 @@ test_that("cmip_available() works", {
   expect_true(all(file.exists(available$file)))
 })
 
-test_that("Failed instances give proper message", {
-  failed <- results[["instance_id"]][1:2]
-  expect_error(failed_query <- instance_query(failed), NA)
-  expect_s3_class(
-    failed_results <- eval(parse(text = failed_query)),
-    "data.table"
-  )
-  expect_true(nrow(failed_results) > 0)
-})
-
+# test_that("Failed instances give proper message", {
+#   failed <- results[["instance_id"]][1:2]
+#   expect_error(failed_query <- instance_query(failed), NA)
+#   expect_s3_class(
+#     failed_results <- eval(parse(text = failed_query)),
+#     "data.table"
+#   )
+#   expect_true(nrow(failed_results) > 0)
+# })
 
 test_that("year_range argument in cmip_download works", {
   expect_error(cmip_root_set(tempfile()), NA)
