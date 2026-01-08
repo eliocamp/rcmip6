@@ -12,23 +12,26 @@
 #' @export
 cmip_filter_replicas <- function(results) {
   instance_id <- .SD <- data_node <- online <- NULL
-  nodes <- get_data_node()[online == TRUE]
 
-  results <- results[data_node %in% nodes[["data_node"]]]
+  results <- results[is_online(data_node)]
   results <- results[, .SD[1], by = instance_id]
   results
 }
 
 
-get_data_node <- function(timeout = 3) {
-  status_url <- "https://aims2.llnl.gov/proxy/status"
-  data <- jsonlite::read_json(status_url)$data$result
+is_online <- function(nodes) {
+  nodes_unique <- unique(nodes)
+  online <- vapply(nodes_unique, is_online_one, logical(1))
+  online[nodes]
+}
 
-  data <- lapply(data, function(x) {
-    data.table::data.table(
-      data_node = x$metric$instance,
-      online = x$value[[2]] == 1
-    )
-  })
-  data.table::rbindlist(data)
+is_online_one <- function(node) {
+  # Some nodes just fail to resolve and they throw an error
+  response <- try(httr::HEAD(node), silent = TRUE)
+
+  if (inherits(response, "try-error")) {
+    return(FALSE)
+  }
+
+  identical(httr::status_code(response), 200L)
 }
