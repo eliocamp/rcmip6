@@ -19,7 +19,7 @@
 cmip_search <- function(query) {
   if (is.character(query)) {
     query <- list(
-      instance_id = query
+      id = query
     )
   }
   query$format <- "application/solr+json"
@@ -31,8 +31,11 @@ cmip_search <- function(query) {
     paste0(q, collapse = ",")
   })
 
+  node <- cmip_node_get()
+  url <- paste0(node, "/esg-search/search")
+
   response <- httr::GET(
-    "https://aims2.llnl.gov/proxy/search",
+    url,
     query = query
   )
 
@@ -41,7 +44,7 @@ cmip_search <- function(query) {
   }
 
   search_results <- jsonlite::parse_json(
-    httr::content(response, encoding = "UTF-8"),
+    httr::content(response, encoding = "UTF-8", as = "text"),
     simplifyVector = TRUE
   )
 
@@ -93,6 +96,7 @@ columns_to_vector <- function(results) {
   }
   results
 }
+
 
 #' @inheritParams cmip_download
 #' @export

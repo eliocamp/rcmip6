@@ -70,7 +70,6 @@ cmip_download <- function(
   is_requested <- extract_info_column(results, "is_requested")
   needs_download <- extract_info_column(results, "needs_download")
 
-  browser()
   # These variables are lists of length nrow(requests)
   # I need to flatten the list to vectorise and paralellise
   # but then I want to pack the results back into the same structure

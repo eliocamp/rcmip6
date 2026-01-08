@@ -4,6 +4,7 @@
 
 -   `cmip_download()` will check available space and stop with an error if there isn't enough. You can bypass this by setting `check_diskspace = FALSE`.
 -   Download parameters (maximum concurrent, downloads, maximum number of retries, etc.) can be changed with the new `download_config` argument in `cmip_download()`. Notice that the default values have also changed to download sequentially by default.
+-  `cmip_node_set()` enables to change to a custom ESGF node. 
 
 ## Breaking changes
 
